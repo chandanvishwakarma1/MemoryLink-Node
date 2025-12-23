@@ -6,12 +6,13 @@ export const useAuthStore = create((set) => ({
     token: null,
     isLoading: false,
     isCheckingAuth: true,
+    authCheckFailed: false,
 
     login: async (email, password) => {
         set({ isLoading: true })
         try {
             console.log(`hitting url: ${process.env.EXPO_PUBLIC_BACKEND_API_URL}/auth/login`);
-            const response = await fetch(`https://memory-link-server-v1.vercel.app/api/auth/login`, {
+            const response = await fetch(`https://memory-link-server-w2fp.vercel.app/api/auth/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -41,7 +42,7 @@ export const useAuthStore = create((set) => ({
     register: async (username, email, password) => {
         set({isLoading: true});
         try {
-            const response = await fetch(`https://memory-link-server-v1.vercel.app/api/auth/register`,{
+            const response = await fetch(`https://memory-link-server-w2fp.vercel.app/api/auth/register`,{
                 method: "POST",
                 headers:{
                     "Content-Type": "application/json",
@@ -57,7 +58,7 @@ export const useAuthStore = create((set) => ({
             if(!response.ok) throw new Error(data.message || "Something went wrong");
 
             await AsyncStorage.setItem("user", JSON.stringify(data.user));
-            await AsyncStorage.setItem("token", JSON.stringify(data.token));
+            await AsyncStorage.setItem("token", data.token);
 
             set({user: data.user, token:data.token, isLoading:false});
             return ({success: true});
@@ -69,16 +70,18 @@ export const useAuthStore = create((set) => ({
     },
 
     checkAuth: async () => {
+        let token = null;
+        let user = null;
+        let failed = false;
         try {
-            const token = await AsyncStorage.getItem('token');
+            token = await AsyncStorage.getItem('token');
             const userJson = await AsyncStorage.getItem('user');
-            const user = userJson ? JSON.parse(userJson) : null;
-
-            set({token, user});
+            user = userJson ? JSON.parse(userJson) : null;
         } catch (error) {
             console.log("Auth check failed: ", error);
+            failed = true;
         } finally {
-            set({isCheckingAuth: false})
+            set({token, user, authCheckFailed: failed, isCheckingAuth: false});
         }
     },
 

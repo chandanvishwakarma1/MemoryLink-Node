@@ -7,7 +7,7 @@ import 'dotenv/config';
 import User from "../Models/User.js";
 
 
-const generateToken = async (userId) => {
+const generateToken = (userId) => {
     try {
         return jwt.sign({userId}, process.env.JWT_SECRET, {expiresIn: "15d"});
     } catch (error) {
@@ -50,11 +50,7 @@ export const postRegister = async (req,res,next) => {
         if(existingUsername) return res.status(400).json({message: "Username already exists."});
 
         //provide random profileImage
-        const profileImage = createAvatar(glass, {
-            seed: username,
-            radius: 50,
-            scale: 50,
-        });
+        const profileImage = `https://api.dicebear.com/9.x/glass/svg?seed=${username}&&radius=50&&scale=50`
 
         //creating new user
         const user = new User({
@@ -103,7 +99,7 @@ export const postLogin = async (req, res, next) => {
         if(!isPasswordCorrect) return res.status(400).json({message: "Invalid credentials"});
 
         //Generate token
-        const token = await generateToken(existingUser._id);
+        const token = generateToken(existingUser._id);
 
         //Return response
         res.status(200).json({

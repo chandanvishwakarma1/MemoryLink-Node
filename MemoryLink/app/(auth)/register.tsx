@@ -37,7 +37,7 @@ export default function register() {
 
   const handleSignup = async () => {
     if(!username || !email || !password){
-      Alert.alert("Error", "All fields are requied");
+      Alert.alert("Error", "All fields are required");
       return;
     }
     const result = await register(username,email,password);
