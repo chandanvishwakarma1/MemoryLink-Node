@@ -3,11 +3,15 @@ import COLORS from '@/constants/colors';
 import { useAuthStore } from '@/store/authStore'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image'
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
 import { SvgUri } from 'react-native-svg'
 
 export default function profile() {
   const {user, logOut } = useAuthStore();
+
+  const handleLogOut = () => {
+    logOut();
+  }
 
   console.log(user?.profileImage);
   return (
@@ -82,6 +86,9 @@ export default function profile() {
         <Menu icon='settings-outline' title='Settings' link='/(profile)/settings' />
         <Menu icon='gift-outline' title='Refer' link='/(profile)/refer' isLast={true} />
         {/* <Menu icon='log-out-outline' title='Logout' isLast={true} /> */}
+      </View>
+      <View>
+        <TouchableOpacity className='px-14 mt-3 py-6 bg-blue-600 rounded-lg' onPress={handleLogOut}><Text className='text-white font-semibold'>Log Out</Text></TouchableOpacity>
       </View>
     </View>
   );
