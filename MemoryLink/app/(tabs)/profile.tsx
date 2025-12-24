@@ -1,3 +1,4 @@
+import Menu from '@/components/Menu';
 import COLORS from '@/constants/colors';
 import { useAuthStore } from '@/store/authStore'
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -11,6 +12,7 @@ export default function profile() {
   console.log(user?.profileImage);
   return (
     <View className='flex-1 items-center justify-center mx-6'>
+      {/* profileImage */}
       <View className='relative'>
         {user?.profileImage ? (
           <View style={{ width: 128, height: 128 }}>
@@ -31,8 +33,17 @@ export default function profile() {
           <Ionicons name='create-outline' size={20} color="#fff" />
         </Pressable>
       </View>
+      {/* username */}
+      <View className='mt-3'>
+          {user?.username? (
+            <Text>@ {user.username}</Text>
+          ): (
+            <Text>@username</Text>
+          )}
+      </View>
 
-      <View className='flex mt-9 rounded-lg py-6 px-auto' style={{backgroundColor: COLORS.light.background.main}}>
+      {/* stats */}
+      <View className='flex mt-9 rounded-lg py-6 px-9' style={{backgroundColor: COLORS.light.background.main}}>
         {user? (
           <View className='flex-row gap-14'>
             <View className='items-center'>
@@ -65,8 +76,13 @@ export default function profile() {
           </View>
         )}
       </View>
-
-      
+      {/* menu */}
+      <View className='bg-white  py-4 rounded-lg mt-6 gap-3'>
+        <Menu icon='pencil-outline' title='Edit Profile' isFirst={true} link='/(profile)/editprofile' />
+        <Menu icon='settings-outline' title='Settings' link='/(profile)/settings' />
+        <Menu icon='gift-outline' title='Refer' link='/(profile)/refer' isLast={true} />
+        {/* <Menu icon='log-out-outline' title='Logout' isLast={true} /> */}
+      </View>
     </View>
   );
 }
