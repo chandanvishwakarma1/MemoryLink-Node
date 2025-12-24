@@ -1,0 +1,29 @@
+# Environment variables
+.env
+**/.env
+
+# Expo
+.expo/
+**/.expo/
+
+# Node
+node_modules/
+**/node_modules/
+
+# Dependencies
+node_modules/
+
+# Backend (Node)
+backend/.env
+backend/npm-debug.log
+
+# Frontend (React Native)
+MemoryLink/ios/Pods/
+MemoryLink/android/app/build/
+MemoryLink/android/.gradle
+MemoryLink/.vscode/
+*.jsbundle
+
+# OS files
+.DS_Store
+
