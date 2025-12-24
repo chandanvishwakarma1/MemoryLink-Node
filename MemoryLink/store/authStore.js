@@ -94,5 +94,14 @@ export const useAuthStore = create((set) => ({
         } catch (error) {
             console.log("Error logging out: ", error);
         }
+    },
+    updateUser: async ({ data }) => {
+        try {
+            await AsyncStorage.setItem("user", JSON.stringify(data.user));
+
+            set({user: data.user});
+        } catch (error) {
+            console.log("Error updating user: ", error)   ;
+        }
     }
 }))

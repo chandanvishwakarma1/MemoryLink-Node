@@ -17,8 +17,45 @@ export const validateUsername = async (req, res, next) => {
     }
 }
 
-export const changeUsername = () => {
+export const changeUsername = async (req, res, next) => {
+    try {
+        const { username } = req.body;
 
+        const existingUser = await User.findOne({ username });
+        if (existingUser) return res.status(400).json({ message: "Username already exists", success: false })
+
+        // const result = await User.updateOne({ _id: req.user._id }, { username });
+        // if (result.modifiedCount === 0) {
+        //     return res.status(404).json({
+        //         message: "User not found or username is the same",
+        //         success: false,
+        //     });
+        // }
+        const updatedUserDoc = await User.findByIdAndUpdate(
+            req.user._id,
+            { username },
+            { new: true } // Returns the document AFTER update
+        );
+        if (!updatedUserDoc) {
+            return res.status(404).json({ message: "User not found", success: false });
+        }
+        const updatedUser = {
+            id: updatedUserDoc.id,
+            username: updatedUserDoc.username,
+            email: updatedUserDoc.email,
+            profileImage: updatedUserDoc.profileImage,
+            createdAt: updatedUserDoc.createdAt,
+        }
+
+        res.json({
+            message: "Username updated successfully",
+            success: true,
+            user: updatedUser,
+        });
+    } catch (error) {
+        console.log("Error updating the username:", error);
+        res.status(500).json({ message: `Internal server error`, success: false });
+    }
 }
 
 export const changeEmail = async (req, res, next) => {
@@ -46,12 +83,27 @@ export const changeEmail = async (req, res, next) => {
         //     matchedCount: 1
         // }
 
-        const result = await User.updateOne({ _id: req.user._id }, { $set: { email } });
-        // Verify update success
-        if (result.modifiedCount === 0) {
-            return res.status(404).json({ message: "User not found or email is the same", success: false });
+        const updatedUserDoc = await User.findByIdAndUpdate(
+            req.user._id,
+            { email },
+            { new: true }
+        );
+        if (!updatedUserDoc) {
+            return res.status(404).json({ message: "User not found", success: false });
         }
-        res.json({ message: "Email updated successfully", success: true });
+        const updatedUser = {
+            id: updatedUserDoc.id,
+            username: updatedUserDoc.username,
+            email: updatedUserDoc.email,
+            profileImage: updatedUserDoc.profileImage,
+            createdAt: updatedUserDoc.createdAt,
+        }
+
+        res.json({
+            message: "Email updated successfully",
+            success: true,
+            user: updatedUser,
+        });
     } catch (error) {
         console.log("Error updating the email:", error);
         res.status(500).json({ message: `Internal server error`, success: false });

@@ -5,45 +5,52 @@ import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
 
 export default function editEmail() {
-  const { user, token } = useAuthStore();
+  const { user, token, updateUser } = useAuthStore();
   const [email, setEmail] = useState(user?.email);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(false);
 
   const router = useRouter();
 
-  const changeEmail = async ({ email }: { email: string }) => {
+  const changeEmail = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/users/profile/changeEmail/${user.id}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+        })
+      })
+
+      let data;
       try {
-          setLoading(true);
-          const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/users/profile/${user.id}`, {
-              method: "PATCH",
-              headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                  email,
-              })
-          })
-
-          let data;
-          try {
-              data = await response.json();
-          } catch (error) {
-              data = { message: `Server error: ${response.status} ${response.statusText}` };
-          }
-
-          if (!response.ok) throw new Error(data.message || "Something went wrong");
-          setLoading(false);
-          if (data.success) {
-              Alert.alert("Success", `${data.message}`);
-          }
-
+        data = await response.json();
       } catch (error) {
-          setLoading(false)
-          console.log("Error validating username: ", error);
-          Alert.alert("Error", "Please try again later");
+        data = { message: `Server error: ${response.status} ${response.statusText}` };
       }
+
+      if (!response.ok) throw new Error(data.message || "Something went wrong");
+      setLoading(false);
+      if (data.success) {
+        const updatedUser = { ...user, email }
+        updateUser({ data: { user: updatedUser } });
+        Alert.alert("Success", `${data.message}`);
+        router.back();
+      }
+
+    } catch (error) {
+      setLoading(false)
+      console.log("Error validating username: ", error);
+      if (error instanceof Error) {
+        Alert.alert("Error", `${error.message}`);
+      } else {
+        Alert.alert("Error", "An unknown error occurred");
+      }
+    }
   }
 
   const handleBack = () => {
@@ -69,13 +76,17 @@ export default function editEmail() {
               onFocus={() => setSelected(true)}
               onBlur={() => setSelected(false)}
               keyboardType='email-address'
-            // editable={!loading}
+              editable={!loading}
             />
           </Text>
         </View>
       </View>
-      <TouchableOpacity onPress={()=> changeEmail} className='px-3 py-4 border rounded-lg mt-3 w-full items-center'>
-        <Text className=' font-semibold'>Verify mail</Text>
+      <TouchableOpacity onPress={changeEmail} disabled={loading} className='px-3 py-4 border rounded-lg mt-3 w-full items-center'>
+        {loading ? (
+          <ActivityIndicator />
+        ) : (
+          <Text className=' font-semibold'>Verify mail</Text>
+        )}
       </TouchableOpacity>
     </View>
   )
