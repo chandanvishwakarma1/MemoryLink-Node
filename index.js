@@ -6,6 +6,7 @@ import cors from 'cors';
 //Local Module
 import {connectDB} from './lib/db.js';
 import authRouter from './routes/authRouter.js';
+import userRouter from './routes/userRouter.js';
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/api/auth', authRouter);
+app.use('/api/users', userRouter);
 
 
 app.listen(PORT, '0.0.0.0', ()=> {
