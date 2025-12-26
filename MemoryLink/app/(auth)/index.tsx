@@ -114,7 +114,8 @@ export default function Login() {
         }
       </TouchableOpacity>
 
-      <View className='flex mt-3 items-center'><Text>Don't have an account yet? <Link href="/(auth)/register"><Text className='text-blue-600 font-semibold'>Sign Up</Text></Link></Text></View>
+      <View className='flex mt-3 items-center'><Text>Don't have an account yet? <Link href="/(auth)/(register)/register"><Text className='text-blue-600 font-semibold'>Sign Up</Text></Link></Text></View>
+      <View className='flex mt-3 items-center'><Text>Don't have an account yet? <Link href="/(auth)/(register)/fullName"><Text className='text-blue-600 font-semibold'>Full Name</Text></Link></Text></View>
     </KeyboardAvoidingView>
   )
 }

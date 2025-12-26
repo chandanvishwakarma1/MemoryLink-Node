@@ -82,7 +82,7 @@ export default function profile() {
       </View>
       {/* menu */}
       <View className='bg-white  py-4 rounded-lg mt-6 gap-3'>
-        <Menu icon='pencil-outline' title='Edit Profile' isFirst={true} link='/(profile)/editprofile' />
+        <Menu icon='pencil-outline' title='Edit Profile' isFirst={true} link='/(profile)/editProfile' />
         <Menu icon='settings-outline' title='Settings' link='/(profile)/settings' />
         <Menu icon='gift-outline' title='Refer' link='/(profile)/refer' isLast={true} />
         {/* <Menu icon='log-out-outline' title='Logout' isLast={true} /> */}

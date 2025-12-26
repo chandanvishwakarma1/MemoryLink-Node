@@ -98,7 +98,7 @@ export default function EditUsername() {
     }
 
     const handleBack = () => {
-        router.navigate('/(profile)/editprofile');
+        router.navigate('/(profile)/editProfile');
     }
     return (
         <View className='flex-1 mx-6'>
@@ -136,7 +136,7 @@ export default function EditUsername() {
                     {loading ? (
                         <ActivityIndicator />
                     ) : (
-                        <Text className=' font-semibold'>Verify mail</Text>
+                        <Text className=' font-semibold'>Save</Text>
                     )}
                 </TouchableOpacity>
             </View>

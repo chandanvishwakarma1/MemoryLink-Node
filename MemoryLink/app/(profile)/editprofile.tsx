@@ -15,7 +15,8 @@ export default function editprofile() {
   const router = useRouter();
 
   const handleBack = () => {
-    router.push('/(tabs)/profile');
+    // router.push('/(tabs)/profile');
+    router.back();
   }
   return (
     <View className='flex-1 justify-start items-center mx-6'>

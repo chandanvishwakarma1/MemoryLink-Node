@@ -2,6 +2,10 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
+    fullName: {
+        type: String,
+        required: true,
+    },
     username: {
         type: String,
         required: true,
@@ -12,15 +16,27 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    birthdate:{
+        type: String,
+        required: true,
+    },
+    gender: {
+        type: String,
+        required: true,
+    },
     password: {
         type: String,
         required: true,
-        minlength: 6,
+        minlength: 10,
     },
     profileImage: {
         type: String,
         default: "",
-    }
+    },
+    hasOnBoarded: {
+        type: Boolean,
+        default: false,
+    },
 }, {timestamps: true});
 
 //Hash the password before saving the user

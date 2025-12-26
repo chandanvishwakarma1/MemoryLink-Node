@@ -44,6 +44,7 @@ export default function RootLayout() {
 
     const inAuthScreen = segments[0] === '(auth)';
     const isSignedIn = user && token;
+    // const hasOnBoarded = user.hasOnBoarded && token;
 
     if (!inAuthScreen && !isSignedIn && !authCheckFailed) {
       // Check storage directly

@@ -7,7 +7,7 @@ import{ changeEmail,  changeUsername,  validateUsername } from '../controllers/u
 
 const router = express.Router();
 
-router.patch('/profile/usernameValidate/:id', protectedRoute, validateUsername);
+router.patch('/profile/usernameValidate',  validateUsername);
 router.patch('/profile/changeUsername/:id', protectedRoute, changeUsername);
 router.patch('/profile/changeEmail/:id', protectedRoute, changeEmail)
 

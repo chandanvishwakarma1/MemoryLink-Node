@@ -54,7 +54,7 @@ export default function editEmail() {
   }
 
   const handleBack = () => {
-    router.navigate('/(profile)/editprofile');
+    router.navigate('/(profile)/editProfile');
   }
   return (
     <View className='flex-1 mx-6 items-center'>
