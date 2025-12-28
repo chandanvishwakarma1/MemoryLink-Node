@@ -10,15 +10,20 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+        trim: true,
+        lowercase: true,
     },
-    email:{
+    email: {
         type: String,
         required: true,
         unique: true,
+        trim: true,
+        lowercase: true
     },
-    birthdate:{
-        type: String,
+    birthdate: {
+        type: Date,
         required: true,
+        immutable: true,
     },
     gender: {
         type: String,
@@ -37,10 +42,28 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-}, {timestamps: true});
+    hasAcceptedTermsAndPrivacy: {
+        type: Boolean,
+        required: true,
+        immutable: true,
+    },
+    termsAcceptedAt: {
+        type: Date,
+        required: true,
+        immutable: true,
+    },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+
+    verifiedAt: {
+        type: Date,
+    },
+}, { timestamps: true });
 
 //Hash the password before saving the user
-userSchema.pre("save", async function() {
+userSchema.pre("save", async function () {
     if (!this.isModified("password")) return;
 
     const salt = await bcrypt.genSalt(12);
@@ -48,7 +71,7 @@ userSchema.pre("save", async function() {
 })
 
 //Compare password  func
-userSchema.methods.comparePassword = async function(userPassword) {
+userSchema.methods.comparePassword = async function (userPassword) {
     return await bcrypt.compare(userPassword, this.password);
 }
 

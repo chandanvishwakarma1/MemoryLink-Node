@@ -5,6 +5,10 @@ import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 //Local Module
 import User from "../Models/User.js";
+import { generateOtp, hashOtp, verifyOtp } from "../lib/otp.js";
+import OtpModel from "../Models/OtpModel.js"
+import { sendEmail } from "../lib/email/email.js";
+import { otpTemplate } from "../lib/email/templates/otp.js";
 
 
 const generateToken = (userId) => {
@@ -17,10 +21,15 @@ const generateToken = (userId) => {
 
 export const postRegister = async (req, res, next) => {
     try {
-        const { username, email, birthdate, gender, password, hasOnBoarded } = req.body;
+        const { username, email, fullName, birthdate, gender, password, hasAcceptedTermsAndPrivacy, userOtp } = req.body;
+
+        // Convert string booleans to actual booleans
+        const toBoolean = (v) => v === true || v === 'true';
+        const hasAcceptedTermsAndPrivacyBool = toBoolean(hasAcceptedTermsAndPrivacy);
+
 
         //Form Validation
-        if (!username || !email || !password || !birthdate || !gender) return res.status(400).json({
+        if (!username || !email || !fullName || !password || !birthdate || !gender) return res.status(400).json({
             message: "All fields are required."
         });
 
@@ -39,7 +48,7 @@ export const postRegister = async (req, res, next) => {
         // Only allow lowercase letters, numbers, underscores, and periods
         const usernameRegex = /^[a-z0-9_.]+$/;
         if (!usernameRegex.test(username)) {
-            return res.status(400).json({ message: "Username can only contain letters, numbers, underscores, and periods." });
+            return res.status(400).json({ message: "Username can only contain lowercase letters, numbers, underscores, and periods." });
         }
 
         // Check for consecutive special characters
@@ -52,6 +61,8 @@ export const postRegister = async (req, res, next) => {
             username.endsWith('_') || username.endsWith('.')) {
             return res.status(400).json({ message: "Username cannot start or end with special characters." });
         }
+        //lowercase username
+        const lowerCaseUsername = username.toLowerCase();
 
         // A standard regex for 2025 that covers 99% of use cases
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -59,8 +70,48 @@ export const postRegister = async (req, res, next) => {
         if (!emailRegex.test(email)) {
             return res.status(400).json({ message: "Please enter a valid email address." });
         }
-        //lowercase username
-        const lowerCaseUsername = username.toLowerCase();
+
+        //Birthdate Validation and Processing
+        if (!birthdate) return res.status(400).json({ message: "Birthdate is required." });
+
+        const inputDate = new Date(birthdate);
+
+        // Check if the date is valid
+        if (isNaN(inputDate.getTime())) {
+            return res.status(400).json({ message: "Invalid birthdate format." });
+        }
+
+        // Create UTC date at 00:00:00 for storage
+        const date = new Date(Date.UTC(
+            inputDate.getFullYear(),
+            inputDate.getMonth(),
+            inputDate.getDate()
+        ));
+
+        // Future Date Check
+        const today = new Date();
+        if (date > today) {
+            return res.status(400).json({ message: "Birthdate cannot be in the future." });
+        }
+
+        // Age Calculation and validation
+        // Standard for COPPA/GDPR-K compliance (minimum age 13)
+        const age = today.getFullYear() - date.getFullYear();
+        const monthDiff = today.getMonth() - date.getMonth();
+        const actualAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate()) ? age - 1 : age;
+
+        if (actualAge < 13) {
+            return res.status(400).json({ message: "You must be at least 13 years old to register." });
+        }
+
+        //Gender validation
+        const validGenders = ['Male', 'Female', 'Other', 'Prefer not to say'];
+        if (!validGenders.includes(gender)) {
+            return res.status(400).json({ message: "Please select a valid gender option." });
+        }
+
+        //hasAcceptedTermsAndPrivacy validation
+        if (!hasAcceptedTermsAndPrivacyBool) return res.status(400).json({ message: "User must accept Terms & Privacy" })
 
 
         //Check if user exists or not
@@ -70,16 +121,28 @@ export const postRegister = async (req, res, next) => {
         const existingUsername = await User.findOne({ lowerCaseUsername });
         if (existingUsername) return res.status(400).json({ message: "Username already exists." });
 
+        //Verify otp
+        await verifyOtp(userOtp, email);
+        const isVerified = true;
+
         //provide random profileImage
         const profileImage = `https://api.dicebear.com/9.x/glass/svg?seed=${lowerCaseUsername}&&radius=50&&scale=50`
 
-        
+
         //creating new user
         const user = new User({
+            fullName,
             username : lowerCaseUsername,
             email,
+            birthdate: date,
+            gender,
             password,
             profileImage,
+            hasOnBoarded: false,
+            hasAcceptedTermsAndPrivacy: hasAcceptedTermsAndPrivacyBool,
+            termsAcceptedAt: new Date(),
+            isVerified,
+            verifiedAt: isVerified ? new Date() : null,
         })
 
         //save the user
@@ -142,5 +205,57 @@ export const postLogin = async (req, res, next) => {
     } catch (error) {
         console.log("Error logging in: ", error);
         res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const postRequestOtp = async (req, res, next) => {
+    try {
+        const { email, purpose } = req.body;
+
+        //Validation
+        if(!email) return res.status(400).json({message: "Email is required.",  success: false,});
+
+        if(!purpose) return res.status(400).json({message: "OTP purpose is required", success: false});
+
+        //Generate OTP
+        const serverOtp = generateOtp();
+        if(!serverOtp) throw new Error('Failed to generate OTP');
+
+        //hash Otp
+        const otpHash = hashOtp(serverOtp);
+
+        //Set Expiry
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+        //delete old for same purpose
+        await OtpModel.deleteMany({
+            ...(email && { email }),
+            purpose,
+        });
+
+        //save otp
+        const otp = new OtpModel({
+            email,
+            otpHash,
+            expiresAt,
+            purpose,
+        })
+        await otp.save();
+
+        //send otp
+        const subject = "Your Verification Code"
+        const to = email;
+        const html = otpTemplate({ otp: serverOtp, expiresIn: 10 });
+        const response = await sendEmail(subject,to,html);
+
+        return res.status(200).json({
+            message: "Otp sent successfully",
+            success: true,
+        })
+    } catch (error) {
+        console.log('Error while requesting otp:', error);
+        res.status(500).json({
+            message: error.message || "Something went wrong", success: false
+        }); 
     }
 }

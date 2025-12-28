@@ -1,0 +1,36 @@
+import mongoose from 'mongoose';
+
+const otpModelSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        lowercase: true,
+        trim: true,
+        index: true,
+        required: false,
+    },
+    otpHash: {
+        type: String,
+        required: true,
+    },
+    expiresAt: {
+        type: Date,
+        required: true,
+        index: { expires: 0 } //TTL index
+    },
+    attempts: {
+        type: Number,
+        default: 0,
+        max: 5,
+    },
+    purpose: {
+        type: String,
+        enum: ['reset_password', 'verify_email'],
+        required: true,
+    },
+},{timestamps: true});
+
+//Ensures only one active otp per email
+// otpModelSchema.index({ email: 1 }, { unique: true });
+
+const OtpModel = mongoose.model('OtpModel', otpModelSchema);
+export default OtpModel;
