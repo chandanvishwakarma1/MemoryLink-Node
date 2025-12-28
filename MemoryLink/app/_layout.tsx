@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 SplashScreen.preventAutoHideAsync();
 
@@ -68,10 +69,12 @@ export default function RootLayout() {
     return <View />;
   }
   return (
-    <SafeAreaProvider>
-      <SafeScreen>
-        <Slot />
-      </SafeScreen>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <SafeAreaProvider>
+        <SafeScreen>
+          <Slot />
+        </SafeScreen>
+      </SafeAreaProvider>
+      </GestureHandlerRootView>
   )
 }

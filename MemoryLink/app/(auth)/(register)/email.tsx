@@ -42,7 +42,7 @@ export default function Email() {
     return (
         <View className='flex-1 mx-6 '>
             <View className='flex-row items-center gap-3  w-full mt-3'>
-                <Ionicons name='chevron-back-outline' size={24} />
+                <TouchableOpacity onPress={() => router.back()}><Ionicons name='chevron-back-outline' size={24} /></TouchableOpacity>
                 <Text className='text-2xl font-semibold'>Create account</Text>
             </View>
 
@@ -74,7 +74,7 @@ export default function Email() {
 
 
             <View className='mt-6'>
-                <TouchableOpacity onPress={handleNext} className={isDisabled ? 'px-6 py-4 rounded-lg bg-gray-300 items-center' : 'px-6 py-4 rounded-lg bg-blue-600 items-center'} disabled={isDisabled}>
+                <TouchableOpacity onPress={handleNext} className={isDisabled ? 'px-6 py-4 rounded-lg bg-gray-300 items-center' : 'flex-row px-6 py-4 bg-blue-600  rounded-xl w-full justify-center items-center mt-6'} disabled={isDisabled}>
                     <Text className='text-white text-xl font-semibold'>Next</Text>
                 </TouchableOpacity>
             </View>

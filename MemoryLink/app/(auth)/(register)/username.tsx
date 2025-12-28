@@ -117,7 +117,7 @@ export default function Username() {
     return (
         <View className='flex-1 mx-6 '>
             <View className='flex-row items-center gap-3  w-full mt-3'>
-                <Ionicons name='chevron-back-outline' size={24} />
+                <TouchableOpacity onPress={() => router.back()}><Ionicons name='chevron-back-outline' size={24} /></TouchableOpacity>
                 <Text className='text-2xl font-semibold'>Create account</Text>
             </View>
 

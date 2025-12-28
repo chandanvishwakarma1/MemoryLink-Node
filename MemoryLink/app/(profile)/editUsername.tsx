@@ -88,7 +88,7 @@ export default function EditUsername() {
                 const updatedUser = { ...user, username }
                 updateUser({ data: { user: updatedUser } });
                 Alert.alert("Success", `${data.message}`);
-
+ 
                 router.back();
             }
         } catch (error) {

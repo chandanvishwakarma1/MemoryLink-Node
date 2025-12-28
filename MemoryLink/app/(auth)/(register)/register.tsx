@@ -1,78 +1,124 @@
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAuthStore } from '@/store/authStore';
-import { Link, useRouter } from 'expo-router';
+import { Alert, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform } from 'react-native'
+import React, { useRef, useState } from 'react'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useAuthStore } from '@/store/authStore'
 
-export default function register() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
-  const { register, isLoading } = useAuthStore();
+export default function Register() {
+  const {register, hasOnBoarded} = useAuthStore();
+  const router = useRouter()
+  const params = useLocalSearchParams()
 
-  const router = useRouter();
+  const [otp, setOtp] = useState<string[]>(Array(6).fill(''))
+  const inputs = useRef<TextInput[]>([])
 
-  const validateEmail = (text: string) => {
-    setEmail(text);
-    let errorMsg = '';
+  const email = params.email as string;
+  const password = params.password as string;
+  const fullName = params.fullName as string;
+  const username = params.username as string;
+  const birthdate = params.birthdate as string;
+  const gender = params.gender as string;
+  const hasAcceptedTermsAndPrivacy = params.hasAcceptedTermsAndPrivacy as string;
+  // const isVerified = String(isVerified);
 
-    const emailRegex = /\S+@\S+\.\S+/;
+  const handleChange = (value: string, index: number) => {
+    if (!/^\d?$/.test(value)) return
 
-    if (!text) errorMsg = 'Email is required.';
-    else if (!emailRegex.test(text)) errorMsg = 'Please enter a valid email.';
+    const newOtp = [...otp]
+    newOtp[index] = value
+    setOtp(newOtp)
 
-    setErrors((prevErr) => ({ ...prevErr, email: errorMsg }));
-  }
-
-  const validatePassword = (text: string) => {
-    setPassword(text);
-    let errorMsg = '';
-
-    if (!text) errorMsg = 'Password is required';
-
-    setErrors((prevErr) => ({ ...prevErr, password: errorMsg }));
-  }
-
-  const handleSignup = async () => {
-    if (!username || !email || !password) {
-      Alert.alert("Error", "All fields are required");
-      return;
+    if (value && index < 5) {
+      inputs.current[index + 1]?.focus()
     }
-    const result = await register(username, email, password);
+  }
+
+  interface KeyPressEvent {
+    nativeEvent: {
+      key: string;
+    };
+  }
+
+  const handleKeyPress = (e: KeyPressEvent, index: number): void => {
+    if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+      inputs.current[index - 1]?.focus();
+    }
+  };
+  // const handleSignup = async () => {
+  //   if (!hasAcceptedTermsAndPrivacy) {
+  //     Alert.alert("Hold on!", "You must accept the Terms & Privacy Policy to continue.");
+  //     return;
+  //   }
+
+  //   const result = await register(username, email, password, fullName, birthdate, gender, hasAcceptedTermsAndPrivacy);
+  //   if (!result.success) {
+  //     Alert.alert("Error", result.error);
+  //     return;
+  //   }
+  //   router.replace('/(tabs)');
+  // }
+
+  const handleVerify = async() => {
+    const code = otp.join('')
+    if (code.length < 6) {
+      Alert.alert('Invalid OTP', 'Please enter the complete code')
+      return
+    }
+
+    const userOtp = code;
+    const result = await register(username, email, password, fullName, birthdate, gender, hasAcceptedTermsAndPrivacy, userOtp);
     if (!result.success) {
       Alert.alert("Error", result.error);
       return;
     }
-    router.replace('/(tabs)');
-  }
-
-  const handleEmail = () => {
-    router.push('/(auth)/(register)/email')
+    router.push({
+      pathname: '/(tabs)',
+    })
   }
 
   return (
-    <View className='flex-1 justify-center items-center mx-6'>
-      <View className='flex justify-center items-center mb-24 w-3/3'>
-        <View className='w-32 h-32 bg-neutral-300 rounded-full'>
-        </View>
-        <Text className='text-4xl font-bold text-center mt-9'>Sign up to make timeline</Text>
+    <KeyboardAvoidingView
+      className="mx-6 items-center justify-center"
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      {/* Icon */}
+      <Ionicons name="mail-unread-outline" size={96} />
+
+      {/* Title */}
+      <Text className="text-2xl font-bold mt-6">
+        Verify your email
+      </Text>
+      <Text className="text-neutral-600 mt-1">
+        Enter the 6-digit code sent to your email
+      </Text>
+
+      {/* OTP Inputs */}
+      <View className="flex-row gap-3 mt-6">
+        {otp.map((digit, index) => (
+          <TextInput
+            key={index}
+            ref={(ref) => { inputs.current[index] = ref! }}
+            value={digit}
+            onChangeText={(v) => handleChange(v, index)}
+            onKeyPress={(e) => handleKeyPress(e, index)}
+            keyboardType="number-pad"
+            maxLength={1}
+            className="border border-neutral-300 w-12 h-12 text-center text-xl rounded-lg"
+          />
+        ))}
       </View>
 
-      <TouchableOpacity onPress={handleEmail} className='flex-row p-3 border rounded-full w-full justify-center items-center mb-3'>
-        <Ionicons name='mail-outline' size={24} className='absolute left-6' />
-        <Text className='text-lg'>Continue with email</Text>
+      {/* Verify Button */}
+      <TouchableOpacity
+        onPress={handleVerify}
+        className={`mt-8 px-6 py-4 rounded-lg ${otp.join('').length === 6 ? 'bg-blue-600' : 'bg-blue-300'
+          }`}
+      >
+        <Text className="text-white font-bold">
+          Verify & Continue
+        </Text>
       </TouchableOpacity>
-      <View className='flex-row p-3 border rounded-full w-full justify-center items-center mb-3'>
-        <Ionicons name='logo-google' size={24} className='absolute left-6' />
-        <Text className='text-lg'>Continue with Google</Text>
-      </View>
-      <View className='flex-row p-3 border rounded-full w-full justify-center items-center mb-3'>
-        <Ionicons name='logo-apple' size={24} className='absolute left-6' />
-        <Text className='text-lg'>Continue with Apple</Text>
-      </View>
-    </View>
+    </KeyboardAvoidingView>
   )
 }
-
