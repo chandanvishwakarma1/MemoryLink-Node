@@ -1,11 +1,11 @@
-import { Alert, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform } from 'react-native'
+import { Alert, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native'
 import React, { useRef, useState } from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useAuthStore } from '@/store/authStore'
 
 export default function Register() {
-  const {register, hasOnBoarded} = useAuthStore();
+  const { register, isLoading } = useAuthStore();
   const router = useRouter()
   const params = useLocalSearchParams()
 
@@ -58,7 +58,7 @@ export default function Register() {
   //   router.replace('/(tabs)');
   // }
 
-  const handleVerify = async() => {
+  const handleVerify = async () => {
     const code = otp.join('')
     if (code.length < 6) {
       Alert.alert('Invalid OTP', 'Please enter the complete code')
@@ -79,7 +79,7 @@ export default function Register() {
   return (
     <KeyboardAvoidingView
       className="mx-6 items-center justify-center"
-      style={{flex: 1}}
+      style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       {/* Icon */}
@@ -110,14 +110,12 @@ export default function Register() {
       </View>
 
       {/* Verify Button */}
-      <TouchableOpacity
-        onPress={handleVerify}
-        className={`mt-8 px-6 py-4 rounded-lg ${otp.join('').length === 6 ? 'bg-blue-600' : 'bg-blue-300'
-          }`}
-      >
-        <Text className="text-white font-bold">
-          Verify & Continue
-        </Text>
+      <TouchableOpacity onPress={handleVerify} disabled={isLoading} className='flex-row px-6 py-4 bg-blue-600  rounded-xl w-full shadow-lg justify-center items-center mt-6'>
+        {isLoading ?
+          <ActivityIndicator color='#fff' />
+          :
+          <Text className='text-white font-bold text-lg'>Verify & Sign up</Text>
+        }
       </TouchableOpacity>
     </KeyboardAvoidingView>
   )

@@ -138,7 +138,7 @@ export const postRegister = async (req, res, next) => {
             gender,
             password,
             profileImage,
-            hasOnBoarded: false,
+            hasOnBoarded: true,
             hasAcceptedTermsAndPrivacy: hasAcceptedTermsAndPrivacyBool,
             termsAcceptedAt: new Date(),
             isVerified,

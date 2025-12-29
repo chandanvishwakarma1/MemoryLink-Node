@@ -8,7 +8,6 @@ export const useAuthStore = create((set) => ({
     isLoading: false,
     isCheckingAuth: true,
     authCheckFailed: false,
-    hasOnBoarded: false,
 
     login: async (email, password) => {
         set({ isLoading: true })
@@ -41,7 +40,7 @@ export const useAuthStore = create((set) => ({
         }
     },
 
-    register: async (username, email, password, fullName, birthdate, gender, hasAcceptedTermsAndPrivacy, isVerified, hasOnBoarded) => {
+    register: async (username, email, password, fullName, birthdate, gender, hasAcceptedTermsAndPrivacy,userOtp) => {
         set({ isLoading: true });
         try {
             const response = await fetch(`https://memory-link-server-w2fp.vercel.app/api/auth/register`, {
@@ -51,14 +50,13 @@ export const useAuthStore = create((set) => ({
                 },
                 body: JSON.stringify({
                     username,
-                    email,
                     fullName,
+                    email,
                     birthdate,
                     gender,
                     password,
                     hasAcceptedTermsAndPrivacy,
-                    isVerified,
-                    hasOnBoarded,
+                    userOtp,
                 })
             });
 
@@ -112,17 +110,18 @@ export const useAuthStore = create((set) => ({
             console.log("Error updating user: ", error);
         }
     },
-    requestOtp: async ({email}) => {
+    requestOtp: async ({ email }) => {
         try {
-            setLoading(true);
-            const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/api/auth/request-otp`, {
+            set({ isLoading: true });
+            console.log(`hitting url at ${process.env.EXPO_PUBLIC_BACKEND_API_URL}`);
+            const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/auth/request-otp`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     email,
-                    purpose: "verfiy_email"
+                    purpose: "verify_email"
                 })
             });
             let data;
@@ -132,14 +131,11 @@ export const useAuthStore = create((set) => ({
                 data = { message: `Server error: ${response.status} ${response.statusText}` };
             }
             if (!response.ok) throw new Error(data.message || 'Something went wrong');
-            setLoading(false);
-            if (data.success) {
-                router.push({
-                pathname: '/(auth)/(register)/register',
-                params: { ...params, hasAcceptedTermsAndPrivacy: String(hasAcceptedTermsAndPrivacy) }
-            })
-            }
+            set({ isLoading: false });
+            return data;
+
         } catch (error) {
+            set({ isLoading: false });
             console.log("Error:", error);
             Alert.alert("Error", error.message);
         }

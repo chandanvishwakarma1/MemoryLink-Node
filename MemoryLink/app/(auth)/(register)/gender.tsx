@@ -12,7 +12,7 @@ export default function Gender() {
     const handleGenderSelect = (gender: string) => {
         setSelectedGender(gender);
         router.push({
-            pathname: '/(auth)/(register)/register',
+            pathname: '/(auth)/(register)/review',
             params: { ...params, gender }
         });
     };
