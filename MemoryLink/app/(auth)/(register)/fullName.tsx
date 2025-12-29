@@ -60,7 +60,7 @@ export default function FullName() {
           onBlur={() => setSelected(false)}
         />
       </View>
-      <View className="min-h-[6px] mt-1">
+      <View className="min-h-[20px] mt-1">
         {errors.error && (
           <Text className="text-red-600 text-sm">
             {errors.error}
@@ -68,8 +68,8 @@ export default function FullName() {
         )}
       </View>
 
-      <View className='mt-6'>
-        <TouchableOpacity onPress={handleNext} className={isDisabled ? 'px-6 py-4 rounded-lg bg-gray-300 items-center' : 'px-6 py-4 rounded-lg bg-blue-600 items-center'} disabled={isDisabled}>
+      <View className='mt-1'>
+        <TouchableOpacity onPress={handleNext} className={isDisabled ? 'px-6 py-4 h-16 rounded-lg bg-gray-300 items-center' : 'px-6 py-4 rounded-lg bg-blue-600 items-center'} disabled={isDisabled}>
           <Text className='text-white text-xl font-semibold'>Next</Text>
         </TouchableOpacity>
       </View>

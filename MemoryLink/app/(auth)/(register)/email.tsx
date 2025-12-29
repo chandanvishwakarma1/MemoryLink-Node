@@ -63,18 +63,18 @@ export default function Email() {
                     keyboardType='email-address'
                 />
             </View>
-            <View className="min-h-[6px] mt-1">
+            <View className="min-h-[20px] mt-1">
                 {errors.error && (
                     <Text className="text-red-600 text-sm">
-                        {errors.error}
+                        {errors.error} 
                     </Text>
                 )}
             </View>
 
 
 
-            <View className='mt-6'>
-                <TouchableOpacity onPress={handleNext} className={isDisabled ? 'px-6 py-4 rounded-lg bg-gray-300 items-center' : 'flex-row px-6 py-4 bg-blue-600  rounded-xl w-full justify-center items-center mt-6'} disabled={isDisabled}>
+            <View className='mt-1'>
+                <TouchableOpacity onPress={handleNext} className={isDisabled ? 'px-6 py-4 h-16 rounded-lg bg-gray-300 items-center' : 'flex-row px-6 py-4 bg-blue-600  rounded-xl w-full justify-center items-center'} disabled={isDisabled}>
                     <Text className='text-white text-xl font-semibold'>Next</Text>
                 </TouchableOpacity>
             </View>

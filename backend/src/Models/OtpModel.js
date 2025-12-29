@@ -27,10 +27,15 @@ const otpModelSchema = new mongoose.Schema({
         enum: ['reset_password', 'verify_email'],
         required: true,
     },
+    resendCount: {
+        type: Number,
+        default: 0,
+    }
 },{timestamps: true});
 
 //Ensures only one active otp per email
-// otpModelSchema.index({ email: 1 }, { unique: true });
+otpModelSchema.index({ email: 1, purpose: 1 }, { unique: true });
+otpModelSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 const OtpModel = mongoose.model('OtpModel', otpModelSchema);
 export default OtpModel;

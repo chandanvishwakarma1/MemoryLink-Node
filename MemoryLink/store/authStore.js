@@ -40,7 +40,7 @@ export const useAuthStore = create((set) => ({
         }
     },
 
-    register: async (username, email, password, fullName, birthdate, gender, hasAcceptedTermsAndPrivacy,userOtp) => {
+    register: async (username, email, password, fullName, birthdate, gender, hasAcceptedTermsAndPrivacy, userOtp) => {
         set({ isLoading: true });
         try {
             const response = await fetch(`https://memory-link-server-w2fp.vercel.app/api/auth/register`, {
@@ -113,7 +113,7 @@ export const useAuthStore = create((set) => ({
     requestOtp: async ({ email }) => {
         try {
             set({ isLoading: true });
-            console.log(`hitting url at ${process.env.EXPO_PUBLIC_BACKEND_API_URL}`);
+            // console.log(`hitting url at ${process.env.EXPO_PUBLIC_BACKEND_API_URL}`);
             const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/auth/request-otp`, {
                 method: "POST",
                 headers: {
@@ -134,6 +134,35 @@ export const useAuthStore = create((set) => ({
             set({ isLoading: false });
             return data;
 
+        } catch (error) {
+            set({ isLoading: false });
+            console.log("Error:", error);
+            Alert.alert("Error", error.message);
+        }
+    },
+    requestResendOtp: async ({ email }) => {
+        try {
+            set({ isLoading: true });
+
+            const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/auth/request-resend-otp`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email,
+                    purpose: "verify_email"
+                })
+            });
+            let data;
+            try {
+                data = await response.json();
+            } catch (error) {
+                data = { message: `Server error: ${response.status} ${response.statusText}` };
+            }
+            if (!response.ok) throw new Error(data.message || 'Something went wrong');
+            set({ isLoading: false });
+            return data;
         } catch (error) {
             set({ isLoading: false });
             console.log("Error:", error);

@@ -40,7 +40,7 @@ export default function profile() {
       {/* username */}
       <View className='mt-3'>
           {user?.username? (
-            <Text>@ {user.username}</Text>
+            <Text>@{user.username}</Text>
           ): (
             <Text>@username</Text>
           )}

@@ -132,7 +132,7 @@ export const postRegister = async (req, res, next) => {
         //creating new user
         const user = new User({
             fullName,
-            username : lowerCaseUsername,
+            username: lowerCaseUsername,
             email,
             birthdate: date,
             gender,
@@ -213,13 +213,13 @@ export const postRequestOtp = async (req, res, next) => {
         const { email, purpose } = req.body;
 
         //Validation
-        if(!email) return res.status(400).json({message: "Email is required.",  success: false,});
+        if (!email) return res.status(400).json({ message: "Email is required.", success: false, });
 
-        if(!purpose) return res.status(400).json({message: "OTP purpose is required", success: false});
+        if (!purpose) return res.status(400).json({ message: "OTP purpose is required", success: false });
 
         //Generate OTP
         const serverOtp = generateOtp();
-        if(!serverOtp) throw new Error('Failed to generate OTP');
+        if (!serverOtp) throw new Error('Failed to generate OTP');
 
         //hash Otp
         const otpHash = hashOtp(serverOtp);
@@ -246,7 +246,7 @@ export const postRequestOtp = async (req, res, next) => {
         const subject = "Your Verification Code"
         const to = email;
         const html = otpTemplate({ otp: serverOtp, expiresIn: 10 });
-        const response = await sendEmail(subject,to,html);
+        const response = await sendEmail(subject, to, html);
 
         return res.status(200).json({
             message: "Otp sent successfully",
@@ -256,6 +256,75 @@ export const postRequestOtp = async (req, res, next) => {
         console.log('Error while requesting otp:', error);
         res.status(500).json({
             message: error.message || "Something went wrong", success: false
-        }); 
+        });
     }
 }
+
+export const postRequestResendOtp = async (req, res, next) => {
+    try {
+        const { email, purpose } = req.body;
+
+        // 1. Basic Validation
+        if (!email) return res.status(400).json({ message: "Email is required.", success: false });
+        if (!purpose) return res.status(400).json({ message: "OTP purpose is required", success: false });
+
+        // 2. Fetch the most recent OTP record
+        const lastOtp = await OtpModel.findOne({ email, purpose });
+
+        if (lastOtp) {
+            // 3. BACKEND COOLDOWN VALIDATION (60 seconds)
+            // Using updated_at ensures we track the literal last time an email was triggered
+            const secondsSinceLastSend = (Date.now() - new Date(lastOtp.updatedAt).getTime()) / 1000;
+            if (secondsSinceLastSend < 60) {
+                return res.status(429).json({
+                    message: `Please wait ${Math.ceil(60 - secondsSinceLastSend)}s before resending.`,
+                    success: false
+                });
+            }
+
+            //MAXIMUM ATTEMPTS VALIDATION (Limit to 3 resends)
+            if (lastOtp.resendCount >= 3) {
+                return res.status(403).json({
+                    message: "Maximum resend attempts reached. Please try again later.",
+                    success: false
+                });
+            }
+        }
+
+        // 5. Prepare New OTP Data
+        const serverOtp = generateOtp();
+        if (!serverOtp) throw new Error('Failed to generate OTP');
+
+        const otpHash = hashOtp(serverOtp);
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 Minutes
+
+        // 6. ATOMIC UPDATE (Upsert)
+        await OtpModel.findOneAndUpdate(
+            { email, purpose },
+            {
+                otpHash,
+                expiresAt,
+                attempts: 0,
+                $inc: { resendCount: 1 } // Increment the resend counter
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
+
+        // 7. Send Email
+        const subject = "Your Verification Code (Resent)";
+        const html = otpTemplate({ otp: serverOtp, expiresIn: 10 });
+        await sendEmail(subject, email, html);
+
+        return res.status(200).json({
+            message: "New OTP sent successfully",
+            success: true,
+        });
+
+    } catch (error) {
+        console.error('Error while requesting resend otp:', error);
+        res.status(500).json({
+            message: error.message || "Something went wrong",
+            success: false
+        });
+    }
+};

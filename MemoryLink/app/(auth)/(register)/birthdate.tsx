@@ -79,17 +79,21 @@ export default function BirthDate() {
 
   return (
     <View className='flex-1 mx-6'>
+
       <View className='flex-row items-center gap-3  w-full mt-3'>
         <TouchableOpacity onPress={() => router.back()}><Ionicons name='chevron-back-outline' size={24} /></TouchableOpacity>
         <Text className='text-2xl font-semibold'>Create account</Text>
       </View>
+
       <View className='mt-16'>
         <Text className='text-3xl font-bold'>What's your date of birth?</Text>
       </View>
-      <View className='flex-row px-4 py-4 border border-neutral-300 rounded-lg items-center justify-between mt-6'>
+
+      <TouchableOpacity onPress={showDatepicker} className='flex-row px-4 py-4 border border-neutral-300 rounded-lg items-center justify-between mt-6'>
         <Text className='text-xl font-bold'>{formattedDate}</Text>
         <TouchableOpacity onPress={showDatepicker} className='p-3 bg-blue-600 rounded-full'><Ionicons name='calendar-outline' size={24} color={'#fff'} /></TouchableOpacity>
-      </View>
+      </TouchableOpacity>
+
       {show && (
         <DateTimePicker
           testID="dateTimePicker"
@@ -100,7 +104,7 @@ export default function BirthDate() {
         />
       )}
 
-      <View className="min-h-[6px] mt-1">
+      <View className="min-h-[20px] mt-1">
         {errors.error && (
           <Text className="text-red-600 text-sm">
             {errors.error}
@@ -108,8 +112,8 @@ export default function BirthDate() {
         )}
       </View>
 
-      <View className='mt-6'>
-        <TouchableOpacity onPress={handleNext} className={isDisabled ? 'px-6 py-4 rounded-lg bg-gray-300 items-center' : 'px-6 py-4 rounded-lg bg-blue-600 items-center'} disabled={isDisabled}>
+      <View className='mt-1'>
+        <TouchableOpacity onPress={handleNext} className={isDisabled ? 'px-6 py-4 h-16 rounded-lg bg-gray-300 items-center' : 'px-6 py-4 rounded-lg bg-blue-600 items-center'} disabled={isDisabled}>
           <Text className='text-white text-xl font-semibold'>Next</Text>
         </TouchableOpacity>
       </View>
