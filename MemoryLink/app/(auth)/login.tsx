@@ -70,7 +70,7 @@ export default function Login() {
             color="#6B7280"
           />
           <TextInput
-            className='pr-36'
+            className='flex-1'
             placeholder='john@email.com'
             value={email}
             onChangeText={validateEmail}
@@ -90,11 +90,11 @@ export default function Login() {
               color="#6B7280"
             />
             <TextInput
-              className='pr-44'
+              className='flex-1'
               placeholder='********'
               value={password}
               onChangeText={validatePassword}
-              secureTextEntry={!showPassword}
+              secureTextEntry={!showPassword} 
             />
           </View>
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className=' p-3'>

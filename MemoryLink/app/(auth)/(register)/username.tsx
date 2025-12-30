@@ -128,6 +128,7 @@ export default function Username() {
 
             <View className={selected ? 'flex-row items-center justify-between px-4 py-3 border mt-3  border-black-300 rounded-lg bg-white' : 'flex-row items-center justify-between px-4 py-3 mt-3 border border-neutral-300 rounded-lg bg-white'}>
                 <TextInput
+                className='flex-1'
                     placeholder='johndoe'
                     value={username}
                     onChangeText={(text) => {

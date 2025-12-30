@@ -15,9 +15,9 @@ const generateToken = (userId) => {
     try {
         return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "15d" });
     } catch (error) {
-        console.log('ERror generating Token', error);
+        console.log('Error generating Token', error);
     }
-}
+};
 
 export const postRegister = async (req, res, next) => {
     try {
@@ -164,7 +164,7 @@ export const postRegister = async (req, res, next) => {
         })
     } catch (error) {
         console.log("Error registering the user", error);
-        res.status(500).json({ message: `Internal server error` });
+        res.status(500).json({ message: error.message || "Internal server error" });
     }
 }
 

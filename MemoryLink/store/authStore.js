@@ -166,7 +166,7 @@ export const useAuthStore = create((set) => ({
         } catch (error) {
             set({ isLoading: false });
             console.log("Error:", error);
-            Alert.alert("Error", error.message);
+            Alert.alert("Error", error.message); 
         }
     }
 }))

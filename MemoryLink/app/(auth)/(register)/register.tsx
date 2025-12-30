@@ -52,8 +52,8 @@ export default function Register() {
 
       const result = await requestResendOtp({ email });
 
-      if (result && !result.success === false) {
-        throw new Error(result?.error || "Failed to resend OTP");
+      if (!result || !result.success) {
+        throw new Error(result?.error || result?.message || "Failed to resend OTP. Please try again later.");
       }
 
       // Reset OTP input
@@ -124,7 +124,7 @@ export default function Register() {
     const userOtp = code;
     const result = await register(username, email, password, fullName, birthdate, gender, hasAcceptedTermsAndPrivacy, userOtp);
     if (!result.success) {
-      Alert.alert("Error", result.error);
+      Alert.alert("Error", typeof result.error === 'string' ? result.error : JSON.stringify(result.error));
       return;
     }
     router.push({
@@ -139,7 +139,7 @@ export default function Register() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View className='flex-row items-center gap-3 w-full mt-3'>
-        <TouchableOpacity onPress={() => router.back()}><Ionicons name='chevron-back-outline' size={24} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()}><Ionicons name='close-outline' size={24} /></TouchableOpacity>
         <Text className='text-2xl font-semibold'>Create account</Text>
       </View>
       {/* Icon */}
@@ -185,8 +185,8 @@ export default function Register() {
           <Text
             onPress={handleResendOtp}
             className={`font-semibold ${secondsLeft > 0 || isResending || resendAttempts >= MAX_RESEND_ATTEMPTS
-                ? 'text-neutral-400'
-                : 'text-blue-600'
+              ? 'text-neutral-400'
+              : 'text-blue-600'
               }`}
           >
             {isResending
@@ -200,7 +200,7 @@ export default function Register() {
         </Text>
         {resendAttempts > 0 && resendAttempts < MAX_RESEND_ATTEMPTS && (
           <Text className="text-neutral-500 text-sm mt-1">
-            {MAX_RESEND_ATTEMPTS - resendAttempts} attempts remaining
+            {MAX_RESEND_ATTEMPTS - resendAttempts} resend attempt remaining
           </Text>
         )}
       </View>

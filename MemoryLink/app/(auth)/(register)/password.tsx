@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function Password() {
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState('');
     const [selected, setSelected] = useState(false);
     const [errors, setErrors] = useState<{ error?: string }>({});
@@ -57,15 +58,22 @@ export default function Password() {
                 <Text className='text-neutral-600 '>Use atleast 10 characters.</Text>
             </View>
 
-            <View className={selected ? 'border border-black-300 rounded-lg mt-3 px-4 py-3' : 'border border-neutral-300 rounded-lg mt-3 px-4 py-3'}>
+            <View className={selected ? 'flex-row items-center justify-between border border-black-300 rounded-lg mt-3 px-4 py-3' : 'flex-row items-center justify-between border border-neutral-300 rounded-lg mt-3 px-4 py-3'}>
                 <TextInput
+                    className='flex-1'
                     placeholder='**********'
                     value={password}
                     onChangeText={validatePassword}
                     editable={!loading}
                     onFocus={() => setSelected(true)}
                     onBlur={() => setSelected(false)}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    autoCorrect={false}
                 />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                    <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} />
+                </TouchableOpacity>
             </View>
             <View className="min-h-[20px] mt-1">
                 {errors.error && (
