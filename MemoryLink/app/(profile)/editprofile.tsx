@@ -18,6 +18,11 @@ export default function editprofile() {
     // router.push('/(tabs)/profile');
     router.back();
   }
+  const isoDate = user?.birthdate;
+  const date = new Date(isoDate);
+  const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+  const formattedDate = date.toLocaleDateString('en-GB', options);
+
   return (
     <View className='flex-1 justify-start items-center mx-6'>
       <View className='flex-row gap-3 items-center mb-9 mt-3 w-full'>
@@ -40,7 +45,7 @@ export default function editprofile() {
       </Pressable>
 
       <View className='mt-9 rounded-lg' style={{ backgroundColor: COLORS.light.background.elevated }}>
-        <EditProfileMenu title='Username' value={user?.username} isFirst={true} link='/editUsername'/>
+        <EditProfileMenu title='Username' value={user?.username} isFirst={true} link='/editUsername' />
       </View>
 
 
@@ -48,10 +53,9 @@ export default function editprofile() {
       <View className='mt-6'>
         <Text className='text-xl font-semibold'>Personel Information</Text>
 
-        <View className='mt-3 rounded-lg ' style={{ backgroundColor: COLORS.light.background.elevated }}>
-          <EditProfileMenu title='Email Address' value={user?.email} link='/editEmail'/>
-          <EditProfileMenu title='Birthdate' value={user?.birthdate || '00-jan-2000'} link='/editBirthdate'/>
-          <EditProfileMenu title='Gender' value={user?.gender || 'Male'} isLast={true} link='/editGender'/>
+        <View className='mt-3 rounded-lg' style={{ backgroundColor: COLORS.light.background.elevated }}>
+          <EditProfileMenu title='Email Address' value={user?.email} link='/editEmail' />
+          <EditProfileMenu title='Gender' value={user?.gender || 'Male'} isLast={true} link='/editGender' />
         </View>
       </View>
 

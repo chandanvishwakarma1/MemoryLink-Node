@@ -43,6 +43,8 @@ export const changeUsername = async (req, res, next) => {
             id: updatedUserDoc.id,
             username: updatedUserDoc.username,
             email: updatedUserDoc.email,
+            birthdate: updatedUserDoc.birthdate,
+            gender: updatedUserDoc.gender,
             profileImage: updatedUserDoc.profileImage,
             createdAt: updatedUserDoc.createdAt,
         }
@@ -95,6 +97,8 @@ export const changeEmail = async (req, res, next) => {
             id: updatedUserDoc.id,
             username: updatedUserDoc.username,
             email: updatedUserDoc.email,
+            birthdate: updatedUserDoc.birthdate,
+            gender: updatedUserDoc.gender,
             profileImage: updatedUserDoc.profileImage,
             createdAt: updatedUserDoc.createdAt,
         }
@@ -106,6 +110,45 @@ export const changeEmail = async (req, res, next) => {
         });
     } catch (error) {
         console.log("Error updating the email:", error);
+        res.status(500).json({ message: `Internal server error`, success: false });
+    }
+}
+
+export const changeGender = async(req,res,next) => {
+    try {
+        const { gender } = req.body;
+
+        //validation
+        const validGenders = ['Male', 'Female', 'Other', 'Prefer not to say'];
+        if (!validGenders.includes(gender)) {
+            return res.status(400).json({ message: "Please select a valid gender option." });
+        }
+
+        const updatedUserDoc = await User.findByIdAndUpdate(
+            req.user._id,
+            { gender },
+            { new: true } // Returns the document AFTER update
+        );
+        if (!updatedUserDoc) {
+            return res.status(404).json({ message: "User not found", success: false });
+        }
+        const updatedUser = {
+            id: updatedUserDoc.id,
+            username: updatedUserDoc.username,
+            email: updatedUserDoc.email,
+            birthdate: updatedUserDoc.birthdate,
+            gender: updatedUserDoc.gender,
+            profileImage: updatedUserDoc.profileImage,
+            createdAt: updatedUserDoc.createdAt,
+        }
+
+        res.json({
+            message: "Gender updated successfully",
+            success: true,
+            user: updatedUser,
+        });
+    } catch (error) {
+        console.log("Error updating the gender:", error);
         res.status(500).json({ message: `Internal server error`, success: false });
     }
 }

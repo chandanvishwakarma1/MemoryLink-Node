@@ -52,7 +52,7 @@ export default function Login() {
   return (
     <KeyboardAvoidingView
       className=' mx-6 justify-center'
-      style={{flex: 1}}
+      style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
     >
@@ -94,21 +94,21 @@ export default function Login() {
               placeholder='********'
               value={password}
               onChangeText={validatePassword}
-              secureTextEntry={!showPassword} 
+              secureTextEntry={!showPassword}
             />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className=' p-3'>
+              <Ionicons
+                name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                size={22}
+                color="#6B7280"
+              />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className=' p-3'>
-            <Ionicons
-              name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-              size={22}
-              color="#6B7280"
-            />
-          </TouchableOpacity>
 
         </View>
       </View>
 
-      <TouchableOpacity onPress={handleLogin} disabled={isLoading} className='flex-row px-6 py-4 bg-blue-600  rounded-xl w-full shadow-lg justify-center items-center mt-6'>
+      <TouchableOpacity onPress={handleLogin} disabled={isLoading} className='flex-row px-6 py-4 h-16 bg-blue-600  rounded-xl w-full shadow-lg justify-center items-center mt-6'>
         {isLoading ?
           <ActivityIndicator color='#fff' />
           :

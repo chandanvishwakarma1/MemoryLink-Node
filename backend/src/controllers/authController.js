@@ -158,6 +158,8 @@ export const postRegister = async (req, res, next) => {
                 id: user._id,
                 username: user.username,
                 email: user.email,
+                birthdate: user.birthdate,
+                gender: user.gender,
                 profileImage: user.profileImage,
                 createdAt: user.createdAt,
             }
@@ -198,6 +200,8 @@ export const postLogin = async (req, res, next) => {
                 id: existingUser._id,
                 username: existingUser.username,
                 email: existingUser.email,
+                birthdate: existingUser.birthdate,
+                gender: existingUser.gender,
                 profileImage: existingUser.profileImage,
                 createdAt: existingUser.createdAt,
             }

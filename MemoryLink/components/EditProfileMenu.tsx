@@ -17,13 +17,13 @@ export default function EditProfileMenu({ title, value, isLast, isFirst, link }:
     const { user } = useAuthStore();
     const router = useRouter();
     const handlePress = () => {
-        router.navigate(`${link}` as any)
+        router.navigate(`${link}` as any) 
     }
     return (
-                <Pressable onPress={handlePress} className={isFirst ? 'flex-row justify-between w-full items-center py-4 pr-3 pl-4' : isLast? 'flex-row justify-between w-full items-center py-4 pr-3 pl-4' : 'flex-row justify-between w-full items-center py-4 border-b border-neutral-300 pr-3 pl-4'}>
+                <Pressable onPress={handlePress} className={isFirst ? 'flex-row justify-between w-full items-center py-4 pr-3 pl-4 gap-6' : isLast? 'flex-row justify-between w-full items-center py-4 pr-3 pl-4 gap-6' : 'flex-row justify-between w-full items-center py-4 border-b border-neutral-300 pr-3 pl-4 gap-6'}>
                     <Text style={{ color: COLORS.light.text.secondary }}>{title}</Text>
-                    <View className='flex-row items-center gap-1'>
-                        <Text>{value}</Text>
+                    <View className='flex-1 flex-row  items-center gap-1'>
+                        <Text className='font-semibold flex-1 text-right' ellipsizeMode="tail" numberOfLines={1}>{value}</Text>
                         <Ionicons name='chevron-forward-outline' size={24} />
                     </View>
                 </Pressable>

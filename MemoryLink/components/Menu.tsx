@@ -15,7 +15,7 @@ export default function Menu({ icon, title, isLast, isFirst, link }: MenuProps) 
     const router = useRouter();
 
     const handleMenu = () => {
-        router.push(`${link}` as any)
+        router.navigate(`${link}` as any)
     }
 
     return (

@@ -28,7 +28,7 @@ export default function EditUsername() {
     const validateUsername = async ({ username }: { username: string }) => {
         try {
             setNameLoading(true);
-            const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/users/profile/usernameValidate/${user.id}`, {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/users/profile/usernameValidate/`, {
                 method: "PATCH",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -110,7 +110,7 @@ export default function EditUsername() {
                 <View><Text className='text-gray-600 font-semibold'>Username</Text></View>
                 <View className={selected ? 'flex-row items-center justify-between px-4 py-3 border  border-black-300 rounded-lg bg-white' : 'flex-row items-center justify-between px-4 py-3 border border-neutral-300 rounded-lg bg-white'}>
                     <TextInput
-                        className=''
+                        className='flex-1'
                         value={username}
                         onChangeText={(text) => {
                             setUsername(text);

@@ -21,11 +21,8 @@ export default function BirthDate() {
   const showDatepicker = () => {
     setShow(true);
   };
-  const formattedDate = date
-    .toDateString()
-    .split(' ')
-    .slice(1)
-    .join(' ');
+const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+const formattedDate = date.toLocaleDateString('en-GB', options);
 
   const handleNext = () => {
     if (!errors.error) {
