@@ -16,17 +16,21 @@ export default function editGender() {
     router.back();
   }
 
-  const changeGender = async () => {
+  const changeGender = async ({ gender }: { gender: string }) => {
+    if (!gender) {
+      Alert.alert("Error", "Please select a gender.");
+      return;
+    }
     try {
       setLoading(true);
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/users/profile/changeGender/${user.id}`, {
-        method: "POST",
+        method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          gender: selectedGender,
+          gender,
         })
       });
       let data;
@@ -38,14 +42,15 @@ export default function editGender() {
       if (!response.ok) throw new Error(data.message || 'Something went wrong');
       setLoading(false);
       if (data.success) {
-        const updatedUser = { ...user, gender: selectedGender }
+        const updatedUser = { ...user, gender: gender }
         updateUser({ data: { user: updatedUser } });
         Alert.alert("Success", `${data.message}`);
         router.back();
       }
     } catch (error) {
-      setLoading(false)
-            console.log("Error updating gender: ", error);
+      setLoading(false);
+      Alert.alert("Error", (error as Error).message || "Something went wrong while updating gender.");
+      console.log("Error updating gender: ", error);
     }
   }
 
@@ -63,7 +68,7 @@ export default function editGender() {
         <GenderBubble title='Prefer not to say' handleNext={() => setSelectedGender('Prefer not to say')} isSelected={selectedGender === 'Prefer not to say'} />
       </View>
 
-      <TouchableOpacity onPress={changeGender} disabled={loading} className='px-3 py-4 border rounded-lg mt-3 w-full items-center'>
+      <TouchableOpacity onPress={() => changeGender({ gender: selectedGender })} disabled={loading} className='px-3 py-4 border rounded-lg mt-3 w-full items-center'>
         {loading ? (
           <ActivityIndicator />
         ) : (

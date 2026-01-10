@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export const sendEmail = async (subject, to , html) => {
+export const sendEmail = async (subject, to, html) => {
 
     //define email message
     const mailOptions = {

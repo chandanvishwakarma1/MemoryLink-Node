@@ -38,6 +38,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
+    status: {
+        type: String,
+        enum: ['waitlist', 'approved',  'active'],
+        default: 'waitlist',
+    },
+    approvedAt: {
+        type: Date,
+    },
     hasOnBoarded: {
         type: Boolean,
         default: false,

@@ -21,7 +21,30 @@ export const changeUsername = async (req, res, next) => {
     try {
         const { username } = req.body;
 
-        const existingUser = await User.findOne({ username });
+        if (username.length < 3) return res.status(400).json({ message: "Username must be at least 3 characters long." });
+
+        if (username.length > 20) return res.status(400).json({ message: "Username must be no more than 20 characters long." });
+
+        // Only allow lowercase letters, numbers, underscores, and periods
+        const usernameRegex = /^[a-z0-9_.]+$/;
+        if (!usernameRegex.test(username)) {
+            return res.status(400).json({ message: "Username can only contain lowercase letters, numbers, underscores, and periods." });
+        }
+
+        // Check for consecutive special characters
+        if (username.includes('__') || username.includes('..') || username.includes('_.') || username.includes('._')) {
+            return res.status(400).json({ message: "Username cannot contain consecutive special characters." });
+        }
+
+        // Username cannot start or end with special characters
+        if (username.startsWith('_') || username.startsWith('.') ||
+            username.endsWith('_') || username.endsWith('.')) {
+            return res.status(400).json({ message: "Username cannot start or end with special characters." });
+        }
+        //lowercase username
+        const lowerCaseUsername = username.toLowerCase();
+
+        const existingUser = await User.findOne({ lowerCaseUsername });
         if (existingUser) return res.status(400).json({ message: "Username already exists", success: false })
 
         // const result = await User.updateOne({ _id: req.user._id }, { username });
@@ -33,7 +56,7 @@ export const changeUsername = async (req, res, next) => {
         // }
         const updatedUserDoc = await User.findByIdAndUpdate(
             req.user._id,
-            { username },
+            { username: lowerCaseUsername },
             { new: true } // Returns the document AFTER update
         );
         if (!updatedUserDoc) {
@@ -114,7 +137,7 @@ export const changeEmail = async (req, res, next) => {
     }
 }
 
-export const changeGender = async(req,res,next) => {
+export const changeGender = async (req, res, next) => {
     try {
         const { gender } = req.body;
 

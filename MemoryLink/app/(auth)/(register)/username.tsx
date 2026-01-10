@@ -1,177 +1,196 @@
-import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useCallback, useRef, useState } from 'react'
+import {
+  ActivityIndicator,
+  Alert,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, { useCallback, useRef, useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
+
+type UsernameStatus =
+  | 'idle'
+  | 'invalid'
+  | 'checking'
+  | 'available'
+  | 'taken';
+
+
 export default function Username() {
-    const [username, setUsername] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [selected, setSelected] = useState(false);
-    const [errors, setErrors] = useState<{ error?: string }>({});
-    const [isDisabled, setIsDisabled] = useState(true);
-    const params = useLocalSearchParams();
+  const router = useRouter();
+  const params = useLocalSearchParams();
 
-    const [nameloading, setNameLoading] = useState(false);
-    const [tick, setTick] = useState(false);
-    const [hasEdited, setHasEdited] = useState(false);
-    const debounceTimeoutRef = useRef<number | null>(null);
+  const [username, setUsername] = useState('');
+  const [status, setStatus] = useState<UsernameStatus>('idle');
+  const [errors, setErrors] = useState<{ error?: string }>({});
+  const [hasEdited, setHasEdited] = useState(false);
+  const [focused, setFocused] = useState(false);
 
-    const router = useRouter();
+  const debounceTimeoutRef = useRef<number | null>(null);
 
-    const handleNext = () => {
-        if (!errors.error) {
-            router.push({
-                pathname: '/(auth)/(register)/birthdate',
-                params: { ...params, username }
-            })
+
+  const usernameRegex = /^[a-z0-9_.]+$/;
+
+
+  const validateLocalUsername = (text: string): string | null => {
+    if (!text) return 'Username is required.';
+    if (text.length < 3) return 'Username must be at least 3 characters long.';
+    if (text.length > 20)
+      return 'Username must be no more than 20 characters long.';
+    if (!usernameRegex.test(text))
+      return 'Only lowercase letters, numbers, underscores, and periods allowed.';
+    if (/(__|\.\.|_\.|\._)/.test(text))
+      return 'Username cannot contain consecutive special characters.';
+    if (/^[_\.]|[_\.]$/.test(text))
+      return 'Username cannot start or end with special characters.';
+    return null;
+  };
+
+
+  const debouncedValidate = useCallback((text: string) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(async () => {
+      try {
+        setStatus('checking');
+
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_API_URL}/users/profile/usernameValidate`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username: text }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setStatus('available');
         } else {
-            Alert.alert("Error", errors.error)
+          setStatus('taken');
         }
+      } catch {
+        setStatus('taken');
+      }
+    }, 300);
+  }, []);
+
+
+  const handleUsernameChange = (text: string) => {
+    const lower = text.toLowerCase();
+    setUsername(lower);
+    if (!hasEdited) setHasEdited(true);
+
+    const error = validateLocalUsername(lower);
+
+    if (error) {
+      setErrors({ error });
+      setStatus('invalid');
+      return;
     }
 
-    const debouncedValidate = useCallback((text: string) => {
-        if (debounceTimeoutRef.current) {
-            clearTimeout(debounceTimeoutRef.current);
-        }
-        debounceTimeoutRef.current = setTimeout(() => {
-            validateUsername({ text });
-        }, 300); 
-    }, []);
+    setErrors({});
+    debouncedValidate(lower);
+  };
 
-    const validateUsername = async ({ text }: { text: string }) => {
-        const lowerCaseUsername = text.toLowerCase();
-        setUsername(lowerCaseUsername);
 
-        // Reset validation states
-        setTick(false);
-        setErrors({});
-        setIsDisabled(true);
-
-        try {
-            // Client-side validation first
-            if (lowerCaseUsername.length < 3) {
-                setErrors({ error: "Username must be at least 3 characters long." });
-                return;
-            }
-
-            if (lowerCaseUsername.length > 20) {
-                setErrors({ error: "Username must be no more than 20 characters long." });
-                return;
-            }
-
-            // Only allow lowercase letters, numbers, underscores, and periods
-            const usernameRegex = /^[a-z0-9_.]+$/;
-            if (!usernameRegex.test(lowerCaseUsername)) {
-                setErrors({ error: "Username can only contain letters, numbers, underscores, and periods." });
-                return;
-            }
-
-            // Check for consecutive special characters
-            if (lowerCaseUsername.includes('__') || lowerCaseUsername.includes('..') || lowerCaseUsername.includes('_.') || lowerCaseUsername.includes('._')) {
-                setErrors({ error: "Username cannot contain consecutive special characters." });
-                return;
-            }
-
-            // Username cannot start or end with special characters
-            if (lowerCaseUsername.startsWith('_') || lowerCaseUsername.startsWith('.') ||
-                lowerCaseUsername.endsWith('_') || lowerCaseUsername.endsWith('.')) {
-                setErrors({ error: "Username cannot start or end with special characters." });
-                return;
-            }
-
-            // If all client-side validation passes, make API call
-            setNameLoading(true);
-            const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/users/profile/usernameValidate`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    username: lowerCaseUsername,
-                })
-            });
-
-            let data;
-            try {
-                data = await response.json();
-            } catch (error) {
-                data = { message: `Server error: ${response.status} ${response.statusText}` };
-            }
-
-            if (!response.ok) throw new Error(data.message || "Something went wrong");
-
-            setNameLoading(false);
-            if (data.success) {
-                setTick(true);
-                setErrors({});
-                setIsDisabled(false);
-            }
-        } catch (error) {
-            setNameLoading(false);
-            setErrors({ error: String(error) });
-            setIsDisabled(true);
-            console.log("Error validating username: ", error);
-            setTick(false);
-        }
+  const handleNext = () => {
+    if (status !== 'available') {
+      Alert.alert('Error', 'Please choose a valid username.');
+      return;
     }
-    return (
-        <View className='flex-1 mx-6 '>
-            <View className='flex-row items-center gap-3  w-full mt-3'>
-                <TouchableOpacity onPress={() => router.back()}><Ionicons name='chevron-back-outline' size={24} /></TouchableOpacity>
-                <Text className='text-2xl font-semibold'>Create account</Text>
-            </View>
 
-            <View className='mt-16'>
-                <Text className='text-3xl font-bold'>Create a username</Text>
-                <Text className='text-neutral-600 '>You can change this at any time.</Text>
-            </View>
+    router.push({
+      pathname: '/(auth)/(register)/birthdate',
+      params: { ...params, username },
+    });
+  };
 
-            <View className={selected ? 'flex-row items-center justify-between px-4 py-3 border mt-3  border-black-300 rounded-lg bg-white' : 'flex-row items-center justify-between px-4 py-3 mt-3 border border-neutral-300 rounded-lg bg-white'}>
-                <TextInput
-                className='flex-1'
-                    placeholder='johndoe'
-                    value={username}
-                    onChangeText={(text) => {
-                        setUsername(text);
-                        if (!hasEdited) setHasEdited(true);
 
-                        // Reset validation states when input changes significantly
-                        if (tick || errors.error) {
-                            setTick(false);
-                            setErrors({});
-                            setIsDisabled(true);
-                        }
+  const canProceed = status === 'available';
 
-                        debouncedValidate(text);
-                    }}
-                    editable={!loading}
-                    onFocus={() => setSelected(true)}
-                    onBlur={() => setSelected(false)}
-                    autoCapitalize='none'
-                    maxLength={20} 
-                />
-                {hasEdited && (
-                    nameloading ? (
-                        <ActivityIndicator />
-                    ) : (
-                        <Ionicons name={tick ? 'checkmark-circle-outline' : 'close-circle-outline'} size={24} />
-                    )
-                )}
-            </View>
-            <View className="min-h-[20px] mt-1">
-                {errors.error && (
-                    <Text className="text-red-600 text-sm">
-                        {errors.error}
-                    </Text>
-                )}
-            </View>
 
-            <View className='mt-1'>
-                <TouchableOpacity onPress={handleNext} className={isDisabled ? 'px-6 py-4 h-16 rounded-lg bg-gray-300 items-center' : 'px-6 py-4 rounded-lg bg-blue-600 items-center'} disabled={isDisabled}>
-                    <Text className='text-white text-xl font-semibold'>Next</Text>
-                </TouchableOpacity>
-            </View>
+  return (
+    <View className="flex-1 mx-6">
+      {/* Header */}
+      <View className="flex-row items-center gap-3 mt-3">
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back-outline" size={24} />
+        </TouchableOpacity>
+        <Text className="text-2xl font-semibold">Create account</Text>
+      </View>
 
-        </View>
-    )
+      {/* Title */}
+      <View className="mt-16">
+        <Text className="text-3xl font-bold">Create a username</Text>
+        <Text className="text-neutral-600">
+          You can change this at any time.
+        </Text>
+      </View>
+
+      {/* Input */}
+      <View
+        className={`flex-row items-center justify-between px-4 py-3 mt-3 rounded-lg bg-white border ${
+          focused ? 'border-black' : 'border-neutral-300'
+        }`}
+      >
+        <TextInput
+          className="flex-1"
+          placeholder="johndoe"
+          value={username}
+          onChangeText={handleUsernameChange}
+          autoCapitalize="none"
+          maxLength={20}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+        />
+
+        {hasEdited && (
+          status === 'checking' ? (
+            <ActivityIndicator />
+          ) : status === 'available' ? (
+            <Ionicons
+              name="checkmark-circle-outline"
+              size={24}
+              color="green"
+            />
+          ) : (
+            <Ionicons
+              name="close-circle-outline"
+              size={24}
+              color="red"
+            />
+          )
+        )}
+      </View>
+
+      {/* Error */}
+      <View className="min-h-[20px] mt-1">
+        {errors.error && (
+          <Text className="text-red-600 text-sm">{errors.error}</Text>
+        )}
+      </View>
+
+      {/* Next Button */}
+      <View className="mt-1">
+        <TouchableOpacity
+          onPress={handleNext}
+          disabled={!canProceed}
+          className={`px-6 py-4 h-16 rounded-lg items-center justify-center ${
+            canProceed ? 'bg-blue-600' : 'bg-gray-300'
+          }`}
+        >
+          <Text className="text-white text-xl font-semibold">Next</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }

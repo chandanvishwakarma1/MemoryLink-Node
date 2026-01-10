@@ -139,7 +139,7 @@ export default function Register() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View className='flex-row items-center gap-3 w-full mt-3'>
-        <TouchableOpacity onPress={() => router.back()}><Ionicons name='close-outline' size={24} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.replace('/(auth)')}><Ionicons name='close-outline' size={24} /></TouchableOpacity>
         <Text className='text-2xl font-semibold'>Create account</Text>
       </View>
       {/* Icon */}
