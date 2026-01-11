@@ -26,7 +26,7 @@ const ThemeToggle = () => {
     };
 
     return (
-        <button onClick={handleToggle}>
+        <button onClick={handleToggle} className="cursor-pointer">
             {resolvedTheme === "dark" ? <Sun color="white" className="p-0 m-0" /> : <Moon />}
         </button>
     )

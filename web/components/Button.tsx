@@ -5,8 +5,8 @@ interface ButtonProps {
 }
 const Button = ({ title }: ButtonProps) => {
     return (
-        <div className='bg-white rounded-full p-3'>
-            <button className='text-black'>{title}</button>
+        <div className='bg-button-light dark:bg-button-dark rounded-full p-3'>
+            <button className='text-button-txt-light font-medium dark:text-button-txt-dark'>{title}</button>
         </div>
     )
 }

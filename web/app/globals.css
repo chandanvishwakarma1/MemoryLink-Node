@@ -5,6 +5,31 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --card-light: #f5f5f5;
+  --card-dark: #0a0a0a;
+  --card-body-light: #7d7773;
+  --card-body-dark: #a1a1aa;
+
+  --txt-light: #171717;
+  --txt-dark: #ffffff;
+
+  --txt-secondary-light: #7d7773;
+  --txt-secondary-dark: #a1a1aa;
+
+  --button-light: #171717;
+  --button-dark: #ffffff;
+  --button-txt-light: #ffffff;
+  --button-txt-dark: #171717;
+
+  --footer-link-light: #6b6460;
+  --footer-link-dark: #a8a6a3;
+
+  --border-light: #E6F4E6;
+  --border-dark: #242423;
+
+  --footer-bg-light: #f5f5f7;
+  --footer-bg-dark: #1d1d1c;
 }
 
 @theme inline {
@@ -12,12 +37,39 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-card-light: var(--card-light);
+  --color-card-dark: var(--card-dark);
+  --color-card-body-light: var(--card-body-light);
+  --color-card-body-dark: var(--card-body-dark);
+
+  --color-txt-light: var(--txt-light);
+  --color-txt-dark: var(--txt-dark);
+
+  --color-txt-secondary-light: var(--txt-secondary-light);
+  --color-txt-secondary-dark: var(--txt-secondary-dark);
+
+  --color-button-light: var(--button-light);
+  --color-button-dark: var(--button-dark);
+  --color-button-txt-light: var(--button-txt-light);
+  --color-button-txt-dark: var(--button-txt-dark);
+
+  --color-footer-link-light: var(--footer-link-light);
+  --color-footer-link-dark: var(--footer-link-dark);
+
+  --color-border-dark: var(--border-dark);
+  --color-border-light: var(--border-light);
+
+  --color-footer-light: var(--footer-bg-light);
+  --color-footer-dark: var(--footer-bg-dark);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    /* --card-bg: #0a0a0a; */
   }
 }
 
@@ -25,4 +77,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+html {
+  scroll-behavior: smooth;
 }

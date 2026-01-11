@@ -1,9 +1,15 @@
-import React from 'react'
+
 import Button from './Button'
+import { useScroll } from '@/contexts/scrollContext'
+
+
 
 const Hero = () => {
+  const { heroRef } = useScroll() || {};
+
+
   return (
-    <div className="flex flex-col  text-center justify-center  dark:text-white mt-44">
+    <div ref={heroRef} style={{ scrollMarginTop:'190px'}} className="flex flex-col  text-center justify-center text-txt-light  dark:text-txt-dark mt-24">
         <div className="border border-neutral-900 rounded-full px-3 py-1 w-fit h-auto mx-auto text-sm">
           <p>🔒 Join 1,400+ people waiting for access.</p>
         </div>

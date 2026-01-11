@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, DM_Sans } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import NavBar from "@/components/NavBar";
+import { ScrollProvider } from "@/contexts/scrollContext";
+import ReactLenis from "lenis/react";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -25,10 +27,24 @@ export default function RootLayout({
         className={`${dmSans.className}  antialiased `}
       >
         <ThemeProvider>
-          <div className="dark:bg-[#050505]">
-            <div className="flex justify-center sticky top-0"><NavBar /></div>
-            {children}
-          </div>
+          <ReactLenis
+          root
+          options={{
+            lerp:0.1,
+            duration: 1.2,
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1,
+          }}
+          >
+            <ScrollProvider>
+              <div className="dark:bg-[#050505]">
+                <div className="flex justify-center sticky top-0"><NavBar /></div>
+                {children}
+              </div>
+            </ScrollProvider>
+          </ReactLenis>
         </ThemeProvider>
       </body>
     </html>

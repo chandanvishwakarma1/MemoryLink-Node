@@ -18,11 +18,11 @@ const Mockup = ({ reverse }: MockupProps) => {
         className="rounded-xl"
       />
 
-      <div className="max-w-70 h-fit space-y-3 bg-[#0a0a0a] p-6 rounded-xl text-white">
+      <div className="max-w-70 h-fit space-y-3 bg-card-light dark:bg-card-dark p-6 rounded-xl text-txt-light dark:text-txt-dark">
         <h3 className="text-3xl font-semibold leading-tight">
           Beyond the Group Chat
         </h3>
-        <p className="text-[#a1a1aa]">
+        <p className="text-card-body-light dark:text-card-body-dark">
           Group chats are messy. Photos get buried under text and links. We give
           your memories a dedicated home where they can breathe.
         </p>
