@@ -4,15 +4,32 @@ import Link from 'next/link'
 import ThemeToggle from './ThemeToggle'
 import Button from './Button'
 import { useScroll } from '@/contexts/scrollContext'
+import { useEffect } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/all'
 
+gsap.registerPlugin(ScrollTrigger)
 const NavBar = () => {
+    useEffect(()=>{
+        gsap.from('.nav', {
+            backgroundColor: 'transparent',
+            duration:1,
+            // scale: 0.5,
+            ease: "expo.out",
+            scrollTrigger: {
+                trigger: '.nav',
+                start: 'bottom top',
+                scrub: true,
+            }
+        })
+    },[])
     const ScrollContext = useScroll();
     const scrollToFeatures = ScrollContext?.scrollToFeatures;
     const scrollToHero = ScrollContext?.scrollToHero;
     const { isHeroInView } = useScroll() || {};
 
     return (
-        <div className={`mt-3 backdrop-blur-md bg-neutral-300/4 w-3xl rounded-full px-6 py-4 dark:text-white`}>
+        <div className={`nav mt-3 backdrop-blur-md mx-6 bg-neutral-300/4 w-3xl rounded-full px-6 py-4 dark:text-white sm:w-2xl`}>
             <nav>
                 <ul className='flex items-center justify-between'>
                     <li>

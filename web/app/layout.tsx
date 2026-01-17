@@ -39,8 +39,8 @@ export default function RootLayout({
           }}
           >
             <ScrollProvider>
-              <div className="dark:bg-[#050505]">
-                <div className="flex justify-center sticky top-0"><NavBar /></div>
+              <div className="bg-back-light dark:bg-back-dark">
+                <div className="flex justify-center sticky top-0 z-10"><NavBar /></div>
                 {children}
               </div>
             </ScrollProvider>

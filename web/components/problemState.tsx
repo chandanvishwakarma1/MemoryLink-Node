@@ -1,11 +1,43 @@
-import React from 'react'
+import gsap from 'gsap';
+import { ScrollTrigger, SplitText } from 'gsap/all';
+import React, { useEffect } from 'react'
 import Mockup from './mockup'
+import TimelinePath from './TimelinePath';
+
+gsap.registerPlugin(SplitText, ScrollTrigger);
+
 
 const ProblemState = () => {
+    useEffect(() => {
+        let split = SplitText.create(".splitText-prob", { type: "lines" });
+        gsap.from(split.lines, {
+            duration: 0.4,
+            x: 40,  
+            autoAlpha: 0,
+            stagger: 0.05, 
+            scrollTrigger: {
+                // scrub:true
+                trigger: ".wrapper-prob",
+                start: "top 80%",
+                // end:"bottom bottom",
+                // markers:true
+            }
+        })
+        gsap.from(".social-wrapper", {
+            x: -40,
+            opacity: 0,
+            duration: 2.1,
+            scrollTrigger: {
+                trigger: ".wrapper-prob",
+                start: "top 80%",
+
+            }
+        })
+    }, [])
     return (
-        <div className=' my-64'>
-            <div className='flex  gap-44 justify-center items-center mb-64'>
-                <div className='text-txt-light dark:text-txt-dark'>
+        <div className='wrapper-prob my-64'>
+            <div className='flex flex-col gap-44 justify-center items-center mb-64 md:flex-row'>
+                <div className='social-wrapper text-txt-light dark:text-txt-dark'>
                     <div className='flex gap-3 items-center justify-center w-fit mx-auto mb-3 '>
                         <div className=''>
                             <svg width="40" height="40" viewBox="0 0 134 134" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -35,12 +67,14 @@ const ProblemState = () => {
                         </div>
                     </div>
                 </div>
-                <div className='text-txt-light dark:text-txt-dark text-3xl font-semibold w-69 leading-tighter'><p>Social media was built for the public. MemoryLink is built for <i>you</i>.</p></div>
+                <div className='splitText-prob text-txt-light dark:text-txt-dark text-3xl font-semibold w-69 leading-tighter'><p>Social media was built for the public. MemoryLink is built for <i>you</i>.</p></div>
             </div>
             <div className='space-y-49'>
-                <Mockup />
-                <Mockup reverse={true} />
-                <Mockup />
+                <TimelinePath />
+
+                <Mockup title='Beyond the Group Chat' body='Group chats are messy. Photos get buried under text and links. We give your memories a dedicated home where they can breathe.' />
+                <Mockup reverse={true} title='Connection, Not Attention' body='No likes, no follower counts, no performative posting. Just a private timeline shared strictly between you and your inner circle.' />
+                <Mockup title='Low-Pressure Streaks' body='A gamified experience that feels like nurturing a garden, not fighting a fire. Build a habit of connection without the anxiety.' />
             </div>
         </div>
     )

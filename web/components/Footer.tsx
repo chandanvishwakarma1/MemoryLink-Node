@@ -34,7 +34,7 @@ const Footer = () => {
     }, [index]);
     return (
         
-            <div className='flex justify-center  border-t border-border-light dark:border-border-dark py-9 bg-footer-light dark:bg-footer-dark'>
+            <div className='flex justify-center px-6 border-t border-border-light dark:border-border-dark py-9 bg-footer-light dark:bg-footer-dark'>
                 <div className='flex flex-col w-3xl space-y-3' >
                     <div className='flex text-txt-light gap-2 dark:text-txt-dark'>
                         <Logo className='w-10 h-auto' strokeWidth={66} />
