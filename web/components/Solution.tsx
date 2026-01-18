@@ -45,12 +45,12 @@ const Solution = () => {
     return (
         <div className='wrapper-solution mx-6 my-64 flex flex-col items-center text-txt-light dark:text-txt-dark '>
             <h1 className='splitText text-5xl font-bold'>One place. One timeline. Just for you.</h1>
-            <div className='flex mt-9 gap-6'>
+            <div className='flex flex-col md:flex-row mt-9 gap-6'>
                 <div className='bodyText-solution max-w-120 bg-card-light dark:bg-card-dark p-6 rounded-xl'>
                     <p className=''>MemoryLink brings all your meaningful moments together into a shared, private timeline — designed for real connection, not social media.</p>
                 </div>
-                <div className='illustration-solution rounded-xl bg-card-light dark:bg-card-dark w-fit p-6'>
-                    <svg width="146" height="98" viewBox="0 0 146 98" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className='illustration-solution flex justify-center rounded-xl bg-card-light dark:bg-card-dark w-full md:w-fit p-6 '>
+                    <svg className='w-60 h-auto md:w-40' width="146" height="98" viewBox="0 0 146 98" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M21 15L17.914 11.914C17.5389 11.5391 17.0303 11.3284 16.5 11.3284C15.9697 11.3284 15.4611 11.5391 15.086 11.914L6 21M5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3ZM11 9C11 10.1046 10.1046 11 9 11C7.89543 11 7 10.1046 7 9C7 7.89543 7.89543 7 9 7C10.1046 7 11 7.89543 11 9Z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M16 50L21.223 53.482C21.2983 53.5321 21.3858 53.5608 21.4761 53.5652C21.5664 53.5695 21.6563 53.5492 21.736 53.5065C21.8157 53.4639 21.8824 53.4003 21.9289 53.3228C21.9754 53.2452 22 53.1564 22 53.066V44.87C22 44.782 21.9768 44.6956 21.9328 44.6194C21.8887 44.5433 21.8253 44.4801 21.7491 44.4363C21.6728 44.3925 21.5863 44.3696 21.4983 44.3699C21.4103 44.3702 21.324 44.3937 21.248 44.438L16 47.5M4 43H14C15.1046 43 16 43.8954 16 45V53C16 54.1046 15.1046 55 14 55H4C2.89543 55 2 54.1046 2 53V45C2 43.8954 2.89543 43 4 43Z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M3 88H6C6.53043 88 7.03914 88.2107 7.41421 88.5858C7.78929 88.9609 8 89.4696 8 90V93C8 93.5304 7.78929 94.0391 7.41421 94.4142C7.03914 94.7893 6.53043 95 6 95H5C4.46957 95 3.96086 94.7893 3.58579 94.4142C3.21071 94.0391 3 93.5304 3 93V86C3 83.6131 3.94821 81.3239 5.63604 79.636C7.32387 77.9482 9.61305 77 12 77C14.3869 77 16.6761 77.9482 18.364 79.636C20.0518 81.3239 21 83.6131 21 86V93C21 93.5304 20.7893 94.0391 20.4142 94.4142C20.0391 94.7893 19.5304 95 19 95H18C17.4696 95 16.9609 94.7893 16.5858 94.4142C16.2107 94.0391 16 93.5304 16 93V90C16 89.4696 16.2107 88.9609 16.5858 88.5858C16.9609 88.2107 17.4696 88 18 88H21" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />

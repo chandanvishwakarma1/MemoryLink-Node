@@ -26,7 +26,8 @@ const CTA = () => {
             autoAlpha: 0,
             scrollTrigger: {
                 trigger: ".wrapper-cta",
-                start: "260% 90%",
+                start: "top 90%",
+                // markers: true,   
             }
         })
     }, [])

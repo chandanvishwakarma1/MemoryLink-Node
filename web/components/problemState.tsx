@@ -69,7 +69,7 @@ const ProblemState = () => {
                 </div>
                 <div className='splitText-prob text-txt-light dark:text-txt-dark text-3xl font-semibold w-69 leading-tighter'><p>Social media was built for the public. MemoryLink is built for <i>you</i>.</p></div>
             </div>
-            <div className='space-y-49'>
+            <div className='space-y-49 flex flex-col items-center'>
                 <TimelinePath />
 
                 <Mockup title='Beyond the Group Chat' body='Group chats are messy. Photos get buried under text and links. We give your memories a dedicated home where they can breathe.' />
