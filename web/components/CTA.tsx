@@ -9,7 +9,7 @@ const CTA = () => {
     useEffect(() => {
         let split = SplitText.create(".split-cta", { type: "words, chars" });
         gsap.from(split.chars, {
-            duration: 1,
+            duration: 1.8,
             x: 40,
             stagger: 0.05,
             autoAlpha: 0,
@@ -20,19 +20,22 @@ const CTA = () => {
         })
         let splitBody = SplitText.create(".split-body-cta", { type: "lines" });
         gsap.from(splitBody.lines, {
-            duration: 0.4,
+            duration: 1.8,
+            delay: 1,
+            opacity: 0,
             y: 40,
-            stagger: 0.05,
+            stagger: 0.06,
+            ease: "expo.out",
             autoAlpha: 0,
             scrollTrigger: {
                 trigger: ".wrapper-cta",
-                start: "top 90%",
-                // markers: true,   
+                start: "260% 90%",
+                // markers: true,
             }
         })
     }, [])
     return (
-        <div className='wrapper-cta mb-24 mx-6 flex flex-col items-center'>
+        <div className='wrapper-cta mb-24 mx-6 flex flex-col items-center text-txt-light  dark:text-txt-dark'>
             <div className='flex flex-col  text-center justify-center text-txt-light  dark:text-txt-dark mt-24'>
                 <h1 className='split-cta text-3xl md:text-7xl font-bold  tracking-tighter  mt-6'>Reserve your username.</h1>
                 <p className='split-body-cta max-w-2xl mx-auto mt-3 text-lg text-txt-secondary-light dark:text-txt-secondary-dark'>We are opening access in waves to ensure a calm, bug-free experience. Secure your spot in line today.</p>
