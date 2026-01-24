@@ -4,11 +4,11 @@ import bcrypt from 'bcryptjs';
 const userSchema = new mongoose.Schema({
     fullName: {
         type: String,
-        required: true,
+        required: function() { return this.status === 'active'; },
     },
     username: {
         type: String,
-        required: true,
+        required: function() { return this.status === 'active'; },
         unique: true,
         trim: true,
         lowercase: true,
@@ -22,16 +22,16 @@ const userSchema = new mongoose.Schema({
     },
     birthdate: {
         type: Date,
-        required: true,
+        required: function() { return this.status === 'active'; },
         immutable: true,
     },
     gender: {
         type: String,
-        required: true,
+        required: function() { return this.status === 'active'; },
     },
     password: {
         type: String,
-        required: true,
+        required: function() { return this.status === 'active'; },
         minlength: 10,
     },
     profileImage: {
@@ -52,12 +52,12 @@ const userSchema = new mongoose.Schema({
     },
     hasAcceptedTermsAndPrivacy: {
         type: Boolean,
-        required: true,
+        required: function() { return this.status === 'active'; },
         immutable: true,
     },
     termsAcceptedAt: {
         type: Date,
-        required: true,
+        required: function() { return this.status === 'active'; },
         immutable: true,
     },
     isVerified: {

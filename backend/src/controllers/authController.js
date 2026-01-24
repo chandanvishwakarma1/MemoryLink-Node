@@ -9,6 +9,7 @@ import { generateOtp, hashOtp, verifyOtp } from "../lib/otp.js";
 import OtpModel from "../Models/OtpModel.js"
 import { sendEmail } from "../lib/email/email.js";
 import { otpTemplate } from "../lib/email/templates/otp.js";
+import { waitlistTemplate } from "../lib/email/templates/waitlist.js";
 
 
 const generateToken = (userId) => {
@@ -19,7 +20,49 @@ const generateToken = (userId) => {
     }
 };
 
+export const postJoinWaitList = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        //Validation
+        if (!email) return res.status(400).json({ message: "Email is required. " });
+
+        // A standard regex for 2025 that covers 99% of use cases
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: "Please enter a valid email address." });
+        }
+
+        //creating new user
+        const user = new User({
+            email,
+            status: 'waitlist',
+        })
+
+        //save the user
+        await user.save();
+
+        //send otp
+        const namePart = email.split('@')[0];
+        const formattedName = namePart.replace(/[._-]/g, ' ');
+        const subject = "You're on the waitlist"
+        const to = email;
+        const html = waitlistTemplate({ name: formattedName});
+        const response = await sendEmail(subject, to, html);
+
+        //return response
+        res.status(201).json({
+            success: true,
+            message: "You have been added to the waitlist.",
+        })
+    } catch (error) {
+        console.log("Error adding the user", error);
+        res.status(500).json({ success: false, message: error.message || "Internal server error" });
+    }
+}
 export const postRegister = async (req, res, next) => {
+
+
     try {
         const { username, email, fullName, birthdate, gender, password, hasAcceptedTermsAndPrivacy, userOtp } = req.body;
 
@@ -115,8 +158,19 @@ export const postRegister = async (req, res, next) => {
 
 
         //Check if user exists or not
+        // const existingEmail = await User.findOne({ email });
+        // if (existingEmail) return res.status(400).json({ message: "Email already exits." });
+
+        //for waitlist remove after luanch
         const existingEmail = await User.findOne({ email });
-        if (existingEmail) return res.status(400).json({ message: "Email already exits." });
+        if (!existingEmail) return res.status(400).json({ message: "Please join the waitlist first." });
+
+        if (existingEmail.status === 'waitlist') return res.status(400).json({ message: "Still on waitlist. Please wait for approval. " });
+
+        if (existingEmail.status === 'active') return res.status(400).json({ message: "Email already exists. " });
+
+
+
 
         const existingUsername = await User.findOne({ lowerCaseUsername });
         if (existingUsername) return res.status(400).json({ message: "Username already exists." });
@@ -130,10 +184,28 @@ export const postRegister = async (req, res, next) => {
 
 
         //creating new user
-        const user = new User({
+        // const user = new User({
+        //     fullName,
+        //     username: lowerCaseUsername,
+        //     email,
+        //     status: 'active',
+        //     birthdate: date,
+        //     gender,
+        //     password,
+        //     profileImage,
+        //     hasOnBoarded: true,
+        //     hasAcceptedTermsAndPrivacy: hasAcceptedTermsAndPrivacyBool,
+        //     termsAcceptedAt: new Date(),
+        //     isVerified,
+        //     verifiedAt: isVerified ? new Date() : null,
+        // })
+
+        //for waitlist changelater
+        const user = await User.findByIdAndUpdate(existingEmail._id, {
             fullName,
             username: lowerCaseUsername,
             email,
+            status: 'active',
             birthdate: date,
             gender,
             password,
@@ -143,7 +215,7 @@ export const postRegister = async (req, res, next) => {
             termsAcceptedAt: new Date(),
             isVerified,
             verifiedAt: isVerified ? new Date() : null,
-        })
+        }, { new: true })
 
         //save the user
         await user.save();
@@ -168,6 +240,7 @@ export const postRegister = async (req, res, next) => {
         console.log("Error registering the user", error);
         res.status(500).json({ message: error.message || "Internal server error" });
     }
+
 }
 
 export const postLogin = async (req, res, next) => {

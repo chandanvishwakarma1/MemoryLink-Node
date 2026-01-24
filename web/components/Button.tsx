@@ -1,14 +1,59 @@
-import React from 'react'
+import postUsers from "@/actions"
+import { useState } from "react";
+import ActivityIndicator from "./ActivityIndicator";
+import Link from "next/link";
+import { CheckIcon, CopyIcon, X } from "lucide-react";
+import Modal from "./Modal";
 
 interface ButtonProps {
     title: string,
+    email: string,
 }
-const Button = ({ title }: ButtonProps) => {
-    return (
-        <div className='bg-button-light dark:bg-button-dark rounded-full p-3 w-max'>
-            <button className='text-button-txt-light font-medium dark:text-button-txt-dark'>{title}</button>
-        </div>
-    )
-}
+const Button = ({ title, email }: ButtonProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleJoinWaitList = async () => {
+    if (!email) return alert("Please enter an email");
+
+    const emailRegex =
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!emailRegex.test(email)) {
+      return alert("Please enter a valid email address.");
+    }
+
+    try {
+      setIsLoading(true);
+      const result = await postUsers(email);
+
+      if (result.success) {
+        setIsOpen(true)
+      }
+    } catch (error) {
+      setIsOpen(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-button-light dark:bg-button-dark rounded-full p-3 w-max">
+      <button
+        onClick={handleJoinWaitList}
+        className="text-button-txt-light font-medium dark:text-button-txt-dark w-32 flex justify-center"
+      >
+        {isLoading ? (
+          <ActivityIndicator className="text-white dark:text-black" />
+        ) : (
+          title
+        )}
+      </button>
+
+      {isOpen && <Modal onClose={() => setIsOpen(false)} />}
+    </div>
+  );
+};
+
 
 export default Button
