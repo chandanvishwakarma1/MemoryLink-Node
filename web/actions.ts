@@ -1,6 +1,7 @@
 'use server'
 const postUsers = async (email: string) => {
     try {
+        console.log("Api: ", `${process.env.WEB_PUBLIC_BACKEND_API_URL}/auth/join-waitlist`);
         const response = await fetch(`${process.env.WEB_PUBLIC_BACKEND_API_URL}/auth/join-waitlist`, {
         method: "POST",
         headers: {
@@ -15,6 +16,7 @@ const postUsers = async (email: string) => {
 
     return { success: true }
     } catch (error) {
+        console.log(error)
             return { success: false, error: String(`${error}, Please try again later.`) }
     }
 }

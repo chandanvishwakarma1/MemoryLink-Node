@@ -21,10 +21,10 @@ export default function Modal({ onClose }: ModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" >
       <div className="bg-back-light dark:bg-back-dark p-9 rounded-3xl shadow-2xl max-w-sm w-fit  mx-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-bold text-txt-light dark:text-txt-dark bg-amber-100">MemoryLink</h1>
+          <h1 className="font-bold text-txt-light dark:text-txt-dark">MemoryLink</h1>
           {/* <div className="bg-back-dark dark:bg-back-light rounded-full p-1"> */}
           <button
           type="button"
@@ -36,14 +36,14 @@ export default function Modal({ onClose }: ModalProps) {
           </button>
           {/* </div>   */}
         </div>
-        <div>
+        <div className="text-start">
           <h2 className="text-2xl font-bold mb-4">Thanks! You are added to waitlist.</h2>
           <p className="text-gray-600 mb-6">
             We'll let you know when a spot opens up.
           </p>
         </div>
         <div className="flex flex-col  gap-6">
-          <h2 className="font-semibold">Tell your friends</h2>
+          <h2 className="font-semibold text-start">Tell your friends</h2>
           <div className="flex  items-center gap-4">
             <svg className="w-6 h-auto" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" ><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg>
 

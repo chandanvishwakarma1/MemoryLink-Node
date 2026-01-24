@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, {useEffect, useState } from 'react'
 import Button from './Button'
 import { ScrollTrigger } from 'gsap/all';
 import { SplitText } from 'gsap/all'
@@ -6,6 +6,7 @@ import gsap from 'gsap'
 gsap.registerPlugin(SplitText, ScrollTrigger);
 
 const CTA = () => {
+    const [email, setEmail] = useState('');
     useEffect(() => {
         let split = SplitText.create(".split-cta", { type: "words, chars" });
         gsap.from(split.chars, {
@@ -52,7 +53,8 @@ const CTA = () => {
             >
                 <input
                     type="email"
-                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
                     required
                     className="
@@ -65,7 +67,7 @@ const CTA = () => {
             rounded-full
           "
                 />
-                <Button title="Join the timeline" />
+                <Button email={email} title="Join the timeline" />
             </div>
         </div>
     )
