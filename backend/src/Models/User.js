@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: function() { return this.status === 'active'; },
         unique: true,
+        sparse: true,
         trim: true,
         lowercase: true,
     },
