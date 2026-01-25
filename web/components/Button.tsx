@@ -15,7 +15,7 @@ const Button = ({ title, email }: ButtonProps) => {
   const [errorOccured, setErrorOccured] = useState('');
 
   const handleJoinWaitList = async () => {
-    console.log("Button clicked, email:", email);
+    // console.log("Button clicked, email:", email);
     if (!email) return alert("Please enter an email");
 
     const emailRegex =
@@ -25,21 +25,30 @@ const Button = ({ title, email }: ButtonProps) => {
       return alert("Please enter a valid email address.");
     }
 
+
     try {
-      setIsLoading(true);
+      setIsLoading(true); setErrorOccured("");
       const result = await postUsers(email);
 
-      console.log("result from trybutton:", result)
-      if (!result.success) {
-        throw result.error;
-      }
+      
+    if (!result.success) {
+      setErrorOccured(
+        result.error instanceof Error
+          ? result.error.message
+          : String(result.error)
+      );
+    }
+
+      // console.log("result from trybutton:", result)
+
       setIsOpen(true)
     } catch (error) {
       setErrorOccured(error instanceof Error ? error.message : String(error));
-      console.log("Error from catchbutton:", error)
+      // console.log("Error from catchbutton:", error)
       setIsOpen(true);
     } finally {
       setIsLoading(false);
+      // setErrorOccured('');
     }
   };
 
