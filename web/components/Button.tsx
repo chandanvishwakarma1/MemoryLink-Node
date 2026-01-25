@@ -6,15 +6,16 @@ import { CheckIcon, CopyIcon, X } from "lucide-react";
 import Modal from "./Modal";
 
 interface ButtonProps {
-    title: string,
-    email: string,
+  title: string,
+  email: string,
 }
 const Button = ({ title, email }: ButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorOccured, setErrorOccured] = useState(false);
+  const [errorOccured, setErrorOccured] = useState('');
 
   const handleJoinWaitList = async () => {
+    console.log("Button clicked, email:", email);
     if (!email) return alert("Please enter an email");
 
     const emailRegex =
@@ -28,14 +29,14 @@ const Button = ({ title, email }: ButtonProps) => {
       setIsLoading(true);
       const result = await postUsers(email);
 
-      setErrorOccured(false);
-      console.log("result from trybutton:", result.error)
-      if (result.success) {
-        setIsOpen(true)
+      console.log("result from trybutton:", result)
+      if (!result.success) {
+        throw result.error;
       }
+      setIsOpen(true)
     } catch (error) {
-      setErrorOccured(true);
-      console.log("Error from catchbutton:",error)
+      setErrorOccured(error instanceof Error ? error.message : String(error));
+      console.log("Error from catchbutton:", error)
       setIsOpen(true);
     } finally {
       setIsLoading(false);

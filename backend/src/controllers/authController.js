@@ -37,7 +37,7 @@ export const postJoinWaitList = async (req, res, next) => {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             if (existingUser.status === 'waitlist') {
-                return res.status(200).json({ success: true, message: "You are already on the waitlist." });
+                return res.status(400).json({ success: false, message: "You are already on the waitlist." });
             } else {
                 return res.status(400).json({ success: false, message: "Email already registered." });
             }

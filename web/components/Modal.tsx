@@ -7,7 +7,7 @@ import { useState } from "react";
 
 interface ModalProps {
   onClose: () => void,
-  errorOccured: boolean
+  errorOccured: string
 }
 export default function Modal({ onClose, errorOccured }: ModalProps) {
   const [copied, setCopied] = useState(false);
@@ -40,7 +40,8 @@ export default function Modal({ onClose, errorOccured }: ModalProps) {
           </button>
           {/* </div>   */}
         </div>
-          <h1>Our Servers are not feeling good. Please try again.</h1>
+          <div className="text-start"><h1>Our Servers are not feeling good. May be because,</h1>
+          <p>{errorOccured}</p></div>
         </div>
       ) : (
         <div className="bg-back-light dark:bg-back-dark p-9 rounded-3xl shadow-2xl max-w-sm w-fit  mx-4">
