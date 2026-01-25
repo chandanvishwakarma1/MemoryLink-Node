@@ -40,13 +40,13 @@ const Footer = () => {
                         <Logo className='w-10 h-auto' strokeWidth={66} />
                         <h2 className='text-3xl font-bold'>MemoryLink</h2>
                     </div>
-                    <div className='flex flex-col font-semibold text-footer-link-light dark:text-footer-link-dark'>
+                    <div className='flex flex-col font-semibold text-footer-link-light dark:text-footer-link-dark '>
                         {
                             footerLinks.map(({ name, onClick, href }) => (
                                 href ? (
                                     <Link key={name} href={href} >{name}</Link>
                                 ) : (
-                                    <button key={name} onClick={onClick} className='self-start'>{name}</button>
+                                    <button key={name} onClick={onClick} className='self-start cursor-pointer'>{name}</button>
                                 )
                             ))
                         }

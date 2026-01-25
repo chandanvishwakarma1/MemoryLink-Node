@@ -12,6 +12,7 @@ interface ButtonProps {
 const Button = ({ title, email }: ButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorOccured, setErrorOccured] = useState(false);
 
   const handleJoinWaitList = async () => {
     if (!email) return alert("Please enter an email");
@@ -27,10 +28,14 @@ const Button = ({ title, email }: ButtonProps) => {
       setIsLoading(true);
       const result = await postUsers(email);
 
+      setErrorOccured(false);
+      console.log("result from trybutton:", result.error)
       if (result.success) {
         setIsOpen(true)
       }
     } catch (error) {
+      setErrorOccured(true);
+      console.log("Error from catchbutton:",error)
       setIsOpen(true);
     } finally {
       setIsLoading(false);
@@ -50,7 +55,7 @@ const Button = ({ title, email }: ButtonProps) => {
         )}
       </button>
 
-      {isOpen && <Modal onClose={() => setIsOpen(false)} />}
+      {isOpen && <Modal onClose={() => setIsOpen(false)} errorOccured={errorOccured} />}
     </div>
   );
 };
