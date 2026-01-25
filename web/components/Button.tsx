@@ -15,42 +15,41 @@ const Button = ({ title, email }: ButtonProps) => {
   const [errorOccured, setErrorOccured] = useState('');
 
   const handleJoinWaitList = async () => {
-    // console.log("Button clicked, email:", email);
-    if (!email) return alert("Please enter an email");
+  if (!email) return alert("Please enter an email");
 
-    const emailRegex =
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const emailRegex =
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    if (!emailRegex.test(email)) {
-      return alert("Please enter a valid email address.");
-    }
+  if (!emailRegex.test(email)) {
+    return alert("Please enter a valid email address.");
+  }
 
+  try {
+    setIsLoading(true);
+    // setErrorOccured("");
 
-    try {
-      setIsLoading(true); setErrorOccured("");
-      const result = await postUsers(email);
+    const result = await postUsers(email);
 
-      
     if (!result.success) {
-      setErrorOccured(
-        result.error instanceof Error
-          ? result.error.message
-          : String(result.error)
-      );
-    }
-
-      // console.log("result from trybutton:", result)
-
-      setIsOpen(true)
-    } catch (error) {
-      setErrorOccured(error instanceof Error ? error.message : String(error));
-      // console.log("Error from catchbutton:", error)
+      setErrorOccured(result.message);
       setIsOpen(true);
-    } finally {
-      setIsLoading(false);
-      // setErrorOccured('');
+      return;
     }
-  };
+
+    // success case
+    setErrorOccured('')
+    setIsOpen(true);
+
+  } catch (error) {
+    setErrorOccured(
+      error instanceof Error ? error.message : "Something went wrong"
+    );
+    setIsOpen(true);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="bg-button-light dark:bg-button-dark rounded-full p-3 w-max">
