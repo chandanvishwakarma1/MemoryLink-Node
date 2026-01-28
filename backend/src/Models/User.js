@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
     birthdate: {
         type: Date,
         required: function() { return this.status === 'active'; },
-        immutable: true,
+        // immutable: true,
     },
     gender: {
         type: String,
@@ -54,12 +54,12 @@ const userSchema = new mongoose.Schema({
     hasAcceptedTermsAndPrivacy: {
         type: Boolean,
         required: function() { return this.status === 'active'; },
-        immutable: true,
+        // immutable: true,
     },
     termsAcceptedAt: {
         type: Date,
         required: function() { return this.status === 'active'; },
-        immutable: true,
+        // immutable: true,
     },
     isVerified: {
         type: Boolean,
