@@ -14,6 +14,6 @@ router.patch('/profile/changeEmail/:id', protectedRoute, changeEmail);
 
 router.patch('/profile/changeGender/:id', protectedRoute, changeGender);
 
-router.post('search', protectedRoute , searchUser);
+router.post('/search', protectedRoute , searchUser);
 
 export default router;

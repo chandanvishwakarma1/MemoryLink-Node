@@ -244,6 +244,7 @@ export const postRegister = async (req, res, next) => {
             user: {
                 id: user._id,
                 username: user.username,
+                fullName: user.fullName,
                 email: user.email,
                 birthdate: user.birthdate,
                 gender: user.gender,
@@ -288,6 +289,7 @@ export const postLogin = async (req, res, next) => {
                 id: existingUser._id,
                 username: existingUser.username,
                 email: existingUser.email,
+                fullName: existingUser.fullName,
                 birthdate: existingUser.birthdate,
                 gender: existingUser.gender,
                 profileImage: existingUser.profileImage,

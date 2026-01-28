@@ -14,6 +14,7 @@ export default function profile() {
   }
 
   console.log(user?.profileImage);
+  console.log(user?.fullName);
   return (
     <View className='flex-1 items-center justify-center mx-6'>
       {/* profileImage */}
@@ -36,6 +37,14 @@ export default function profile() {
         <Pressable className='absolute bottom-0 right-0 p-2 bg-blue-400 rounded-full'>
           <Ionicons name='create-outline' size={20} color="#fff" />
         </Pressable>
+      </View>
+      {/* fullName */}
+      <View>
+        {user?.fullName ? (
+          <Text>{user.fullName}</Text>
+        ) : (
+          <Text>Full Name</Text>
+        )}
       </View>
       {/* username */}
       <View className='mt-3'>

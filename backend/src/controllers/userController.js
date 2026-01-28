@@ -66,6 +66,7 @@ export const changeUsername = async (req, res, next) => {
             id: updatedUserDoc.id,
             username: updatedUserDoc.username,
             email: updatedUserDoc.email,
+            fullName: updatedUserDoc.fullName,
             birthdate: updatedUserDoc.birthdate,
             gender: updatedUserDoc.gender,
             profileImage: updatedUserDoc.profileImage,
@@ -119,6 +120,7 @@ export const changeEmail = async (req, res, next) => {
         const updatedUser = {
             id: updatedUserDoc.id,
             username: updatedUserDoc.username,
+            fullName: updatedUserDoc.fullName,
             email: updatedUserDoc.email,
             birthdate: updatedUserDoc.birthdate,
             gender: updatedUserDoc.gender,
@@ -158,6 +160,7 @@ export const changeGender = async (req, res, next) => {
         const updatedUser = {
             id: updatedUserDoc.id,
             username: updatedUserDoc.username,
+            fullName: updatedUserDoc.fullName,
             email: updatedUserDoc.email,
             birthdate: updatedUserDoc.birthdate,
             gender: updatedUserDoc.gender,
@@ -187,7 +190,12 @@ export const searchUser = async (req,res,next) => {
         res.json({
             success:true,
             message: "User found",
-            user: existingUser
+            user: {
+                id: existingUser._id,
+                username: existingUser.username,
+                fullName: existingUser.fullName,
+                profileImage: existingUser.profileImage
+            }
         })
     } catch (error) {
         console.log("Error searching user: ", error);
