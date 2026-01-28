@@ -5,6 +5,7 @@ import SafeScreen from "@/components/SafeScreen";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { View } from "react-native";
+import { StatusBar } from 'expo-status-bar'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import COLORS from "@/constants/colors";
@@ -73,6 +74,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{flex: 1, backgroundColor: COLORS.light.background.main}}>
       <SafeAreaProvider>
         <SafeScreen>
+          {/* <StatusBar style="dark" /> */}
           <Slot />
         </SafeScreen>
       </SafeAreaProvider>

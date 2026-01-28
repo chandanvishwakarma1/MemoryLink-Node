@@ -175,3 +175,22 @@ export const changeGender = async (req, res, next) => {
         res.status(500).json({ message: `Internal server error`, success: false });
     }
 }
+
+export const searchUser = async (req,res,next) => {
+    try {
+        const { username } = req.body;
+
+        //validation
+        const existingUser = await User.findOne({username});
+        if(!existingUser) return res.status(400).json({success: false, message: "User not found"});
+
+        res.json({
+            success:true,
+            message: "User found",
+            user: existingUser
+        })
+    } catch (error) {
+        console.log("Error searching user: ", error);
+        res.status(500).json({success: false, message: "Internal server error"});
+    }
+}

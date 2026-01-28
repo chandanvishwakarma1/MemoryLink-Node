@@ -10,6 +10,7 @@ import OtpModel from "../Models/OtpModel.js"
 import { sendEmail } from "../lib/email/email.js";
 import { otpTemplate } from "../lib/email/templates/otp.js";
 import { waitlistTemplate } from "../lib/email/templates/waitlist.js";
+import bcrypt from "bcryptjs";
 
 
 const generateToken = (userId) => {
@@ -210,6 +211,10 @@ export const postRegister = async (req, res, next) => {
         //     verifiedAt: isVerified ? new Date() : null,
         // })
 
+        //for waitlist remove later
+        const salt = await bcrypt.genSalt(12);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         //for waitlist changelater
         const user = await User.findByIdAndUpdate(existingEmail._id, {
             fullName,
@@ -218,7 +223,7 @@ export const postRegister = async (req, res, next) => {
             status: 'active',
             birthdate: date,
             gender,
-            password,
+            password: hashedPassword,
             profileImage,
             hasOnBoarded: true,
             hasAcceptedTermsAndPrivacy: hasAcceptedTermsAndPrivacyBool,
@@ -227,8 +232,8 @@ export const postRegister = async (req, res, next) => {
             verifiedAt: isVerified ? new Date() : null,
         }, { new: true })
 
-        //save the user
-        await user.save();
+        //save the user for waitlist change later
+        // await user.save();
 
         //generate the token
         const token = generateToken(user._id);
