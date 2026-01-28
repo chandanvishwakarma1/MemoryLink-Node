@@ -183,19 +183,22 @@ export const searchUser = async (req,res,next) => {
     try {
         const { username } = req.body;
 
+        const lowerCaseUsername = username.toLowerCase();
+
         //validation
-        const existingUser = await User.findOne({username});
-        if(!existingUser) return res.status(400).json({success: false, message: "User not found"});
+        const matchingUsers = await User.find({username:{ $regex: lowerCaseUsername }}, {username:1, profileImage:1, fullName:1});
+        if(matchingUsers.length === 0) return res.status(400).json({success: false, message: "User not found"});
 
         res.json({
             success:true,
             message: "User found",
-            user: {
-                id: existingUser._id,
-                username: existingUser.username,
-                fullName: existingUser.fullName,
-                profileImage: existingUser.profileImage
-            }
+            // user: {
+            //     id: existingUser._id,
+            //     username: existingUser.username,
+            //     fullName: existingUser.fullName,
+            //     profileImage: existingUser.profileImage
+            // }
+            users: matchingUsers
         })
     } catch (error) {
         console.log("Error searching user: ", error);
