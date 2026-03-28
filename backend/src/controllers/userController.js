@@ -189,6 +189,7 @@ export const searchUser = async (req,res,next) => {
         const matchingUsers = await User.find({username:{ $regex: lowerCaseUsername }}, {username:1, profileImage:1, fullName:1});
         if(matchingUsers.length === 0) return res.status(400).json({success: false, message: "User not found"});
 
+        //todo limit the result to screen length
         res.json({
             success:true,
             message: "User found",
