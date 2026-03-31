@@ -17,6 +17,11 @@ const NewTimeline = () => {
     fullName: string,
     id: string,
   }
+  interface SelectedMember {
+    userId: string;
+    role: 'member'; // Default role for added members
+  }
+
   const { user, token } = useAuthStore();
   const [name, setName] = useState('');
   const [selectedMembers, setSelectedMembers] = useState<Users[]>([])
@@ -100,6 +105,8 @@ const NewTimeline = () => {
       console.log("You are already a member");
       return;
     }
+
+    // Check if user is already in selectedMembers
     const isAlreadyMember = selectedMembers.some(
       (m) => m.id === member.id
     );
@@ -109,11 +116,9 @@ const NewTimeline = () => {
       return;
     }
 
-    setSelectedMembers((prev) => [...prev, member]
-      // const updated = [...prev, member];
-      // console.log('array', updated);
-      // return updated;
-    );
+    // Add the full user object
+    setSelectedMembers((prev) => [...prev, member]);
+
     console.log("now added", member.id)
 
     // optional UX cleanup
@@ -121,15 +126,21 @@ const NewTimeline = () => {
     setUsers(null);
     setError('');
   };
+
+  // Updated removeMember function
   const removeMember = (removeMem: Users) => {
     setSelectedMembers(prevMembers =>
       prevMembers.filter(member => member.id !== removeMem.id)
     );
   };
-
   const createTimeline = async () => {
+      if (!name.trim()) {
+      Alert.alert('Error', 'Please enter a timeline name');
+      return;
+    }
     try {
       setCreateLoading(true);
+      console.log("members: ", selectedMembers)
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/timelines`, {
         method: "POST",
         headers: {
@@ -139,7 +150,10 @@ const NewTimeline = () => {
         body: JSON.stringify({
           name,
           description,
-          members: selectedMembers
+          members: selectedMembers.map(member => ({
+            userId: member.id,
+            role: 'member'
+          }))
         })
       })
       let data;
@@ -164,6 +178,7 @@ const NewTimeline = () => {
     }
   }
 
+  const isDisabled = name.trim().length === 0 || selectedMembers.length === 0 || createLoading;
 
   return (
     <View className='flex-1 mx-6'>
@@ -245,7 +260,8 @@ const NewTimeline = () => {
         )}
       </View>
 
-      <TouchableOpacity onPress={createTimeline} disabled={createLoading} className='flex-row px-6 py-4 h-16 bg-blue-600  rounded-xl w-full shadow-lg justify-center items-center mt-6'>
+      <TouchableOpacity onPress={createTimeline} disabled={isDisabled} className={`flex-row px-6 py-4 h-16 rounded-xl w-full justify-center items-center mt-6 shadow-lg 
+    ${isDisabled ? 'bg-gray-400' : 'bg-blue-600'}`}>
         {createLoading ?
           <ActivityIndicator color='#fff' />
           :
