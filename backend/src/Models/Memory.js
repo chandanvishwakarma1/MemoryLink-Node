@@ -25,7 +25,7 @@ const memoryModelScheme = new mongoose.Schema({
     mediaType: {
         type: String,
         required: true,
-        enum: ['image', 'video', 'audio']
+        enum: ['image/jpeg', 'video/mp4', 'audio/mp3']
     }
 }, { timestamps: true });
 
