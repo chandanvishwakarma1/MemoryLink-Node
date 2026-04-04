@@ -1,4 +1,4 @@
-import Memory from "../Models/Memory";
+import Memory from "../Models/Memory.js";
 
 export const createMemory = async(req,res,next)=>{
     try {

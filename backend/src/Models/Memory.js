@@ -23,7 +23,7 @@ const memoryModelScheme = new mongoose.Schema({
         required: true
     },
     mediaType: {
-        String,
+        type: String,
         required: true,
         enum: ['image', 'video', 'audio']
     }
