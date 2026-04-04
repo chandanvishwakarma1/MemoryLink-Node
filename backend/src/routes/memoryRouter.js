@@ -7,5 +7,5 @@ import { createMemory } from '../controllers/memoryController';
 
 const router = express.Router();
 
-router.post('/:id/memories', protectedRoute, createMemory)
-router.get('/:id/memories', protectedRoute, createMemory)
+router.post('/memories', protectedRoute, createMemory)
+// router.get('/memories', protectedRoute, createMemory)

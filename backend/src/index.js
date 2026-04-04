@@ -8,6 +8,7 @@ import {connectDB} from './lib/db.js';
 import authRouter from './routes/authRouter.js';
 import userRouter from './routes/userRouter.js';
 import timelineRouter from './routes/timelineRouter.js'
+import memoryRouter from './routes/memoryRouter.js'
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(cors());
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/timelines', timelineRouter);
+app.use('/api/:timelineId/', memoryRouter);
 
 
 app.listen(PORT, '0.0.0.0', ()=> {
