@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import debounce from 'lodash/debounce';
 import UserList from '@/components/UserList';
 import COLORS from '@/constants/colors';
+import { useQueryClient } from '@tanstack/react-query';
 
 const NewTimeline = () => {
   const router = useRouter();
@@ -33,7 +34,7 @@ const NewTimeline = () => {
 
   const [users, setUsers] = useState<Users[] | null>(null);
   const [error, setError] = useState('');
-
+  const queryClient = useQueryClient();
   const userSearch = useCallback(async (username: string) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -134,7 +135,7 @@ const NewTimeline = () => {
     );
   };
   const createTimeline = async () => {
-      if (!name.trim()) {
+    if (!name.trim()) {
       Alert.alert('Error', 'Please enter a timeline name');
       return;
     }
@@ -165,7 +166,8 @@ const NewTimeline = () => {
       if (!response.ok) throw new Error(data.message || "Something went wrong");
       setCreateLoading(false);
       if (data.success) {
-        Alert.alert("Success", `${data.message}`);
+        queryClient.invalidateQueries({ queryKey: ['timelines']})
+        Alert.alert("Success", "Timeline Created!");
         router.back();
       }
     } catch (error) {

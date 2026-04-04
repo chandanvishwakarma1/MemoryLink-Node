@@ -3,17 +3,17 @@ import express from 'express'
 
 //local module
 import protectedRoute from '../middleware/auth.middleware.js'
-import { createTimeline, getTimelineById, getTimelines } from '../controllers/timelineController.js';
+import { createTimeline, deleteTimeline, getTimelineById, getTimelines } from '../controllers/timelineController.js';
 
 const router = express.Router();
 
 router.post('/', protectedRoute, createTimeline)
 router.get('/', protectedRoute, getTimelines);
 router.get('/:id', protectedRoute, getTimelineById);
+router.delete('/:id', protectedRoute, deleteTimeline);
 
 // // Timeline CRUD operations
 // router.put('/:id', authenticate, updateTimeline);
-// router.delete('/:id', authenticate, deleteTimeline);
 
 // // Member management
 // router.post('/:id/members', authenticate, addMember);

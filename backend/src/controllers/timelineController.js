@@ -281,3 +281,35 @@ export const getTimelineById = async (req, res) => {
         });
     }
 }
+
+export const deleteTimeline = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        // Only owner can delete timeline
+        const timeline = await Timeline.findOneAndDelete({
+            _id: id,
+            ownerId: userId
+        });
+
+        if (!timeline) {
+            return res.status(404).json({
+                success: false,
+                message: "Timeline not found or you're not the owner"
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Timeline deleted successfully"
+        });
+
+    } catch (error) {
+        console.error("Error deleting timeline:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+}

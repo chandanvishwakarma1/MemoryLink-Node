@@ -1,87 +1,77 @@
-import { ActivityIndicator, Alert, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View, FlatList } from 'react-native'
+import { ActivityIndicator, Alert, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View, FlatList, RefreshControl } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Plus } from 'lucide-react-native'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useAuthStore } from '@/store/authStore'
+import COLORS from '@/constants/colors'
+import { useTimelines } from '@/hooks/useTimelines'
+import { TimelineItem } from '@/components/TimelineItem'
 
-export default function index() {
+export default function Index() {
   const { token } = useAuthStore();
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+    isRefetching
+  } = useTimelines(token);
 
-  const [loading, setLoading] = useState(false);
-  const [timelines, setTimelines] = useState([]);
+  // Flatten the pages array from TanStack into a single list for FlatList
+  const allTimelines = data?.pages.flatMap(page => page.data) ?? [];
+
+  type ItemProps = { title: string, onPress: () => void };
+
   const router = useRouter();
-  const handleAdd = () => {
-    router.navigate('/(index)/NewTimeline')
-  }
 
-  const handleGetTimelines = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_API_URL}/timelines}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      })
-
-      let data;
-      try {
-        data = await response.json();
-      } catch (error) {
-        data = { message: `Server error: ${response.status} ${response.statusText}` };
-      }
-
-      if (!response.ok) throw new Error(data.message || "Something went wrong");
-      setLoading(false);
-      if (data.success) {
-        setTimelines(data);
-      }
-    } catch (error) {
-      setLoading(false);
-      console.log("Error updating email: ", error);
-      Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'Something went wrong.'
-      );
-    }
-  }
-  type ItemProps = { title: string };
-
-  const Item = ({ title }: ItemProps) => (
-    <View>
+  const Item = ({ title, onPress }: ItemProps) => (
+    <TouchableOpacity className='flex flex-row gap-3 items-center my-3' onPress={onPress}>
+      <View className='bg-gray-100 rounded-full h-14 w-14'></View>
       <Text>{title}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
-  const simplifiedData = timelines.map(({ _id, name }) => ({
-    id: _id,
-    name,
-  }));
-  useEffect(() => {
-    handleGetTimelines()
-  }, []);
   return (
-    <View className='flex-1 px-6 bg-white'>
+    <View className="flex-1 px-6 bg-white">
       <View className='flex flex-row items-center justify-between'>
         <Text className='font-bold text-xl '>MemoryLink</Text>
         <View>
-          <TouchableOpacity onPress={handleAdd} className='rounded-full p-1' activeOpacity={0.7}>
+          <TouchableOpacity onPress={()=>router.navigate('/(index)/NewTimeline')} className='rounded-full p-1' activeOpacity={0.7}>
             <Plus />
           </TouchableOpacity>
         </View>
       </View>
+      <FlatList
+        data={allTimelines}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <TimelineItem
+            id={item._id}
+            title={item.name} 
+            onPress={() => router.push(`/(index)/timeline/${item._id}`)} 
+          />
+        )}
 
-      <View>
-        {loading ?
-          <ActivityIndicator />
-          :
-          <FlatList
-            data={simplifiedData}
-            renderItem={({ item }) => <Item title={item.name} />}
-            keyExtractor={item => item.id} />
+        // Refresh Logic
+        refreshing={isRefetching}
+        onRefresh={refetch}
+
+        // Infinite Scroll Logic
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+        }}
+        onEndReachedThreshold={0.5}
+
+        ListFooterComponent={
+          isFetchingNextPage ? <ActivityIndicator className="py-4" /> : null
         }
-      </View>
+
+        ListEmptyComponent={
+          !isLoading ? <Text>No Timelines Found</Text> : null
+        }
+      />
     </View>
-  )
+  );
 }

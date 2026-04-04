@@ -11,7 +11,6 @@ export default function Login() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useAuthStore();
-
   const router = useRouter();
 
   const validateEmail = (text: string) => {

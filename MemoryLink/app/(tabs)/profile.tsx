@@ -2,14 +2,17 @@ import Menu from '@/components/Menu';
 import COLORS from '@/constants/colors';
 import { useAuthStore } from '@/store/authStore'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image'
 import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
 import { SvgUri } from 'react-native-svg'
 
 export default function profile() {
+  const queryClient = useQueryClient();
   const {user, logOut } = useAuthStore();
 
   const handleLogOut = () => {
+    queryClient.clear();
     logOut();
   }
 
