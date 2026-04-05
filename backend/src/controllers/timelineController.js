@@ -1,5 +1,6 @@
 import User from "../Models/User.js";
 import Timeline from '../Models/Timelines.js'
+import Memory from "../Models/Memory.js";
 
 export const createTimeline = async (req, res, next) => {
     try {
@@ -263,13 +264,47 @@ export const getTimelineById = async (req, res) => {
             });
         }
 
+
+        const {
+            page = 1,
+            limit = 10,
+            sortBy = 'createdAt',
+            sortOrder = 'desc',
+        } = req.query;
+        const pageNum = Math.max(1, parseInt(page));
+        const limitNum = Math.min(50, Math.max(1, parseInt(limit)));
+        const skip = (pageNum - 1) * limitNum;
+
+        const sortOptions = {
+            [sortBy]: sortOrder.toLowerCase() === 'desc' ? -1 : 1
+        }
+
+        const [memories, total] = await Promise.all([
+            Memory.find({ timelineId: id })
+                .sort(sortOptions)
+                .skip(skip)
+                .limit(limitNum)
+                .populate('userId', 'username profileImage')
+                .lean(),
+            Memory.countDocuments({ timelineId: id })
+        ]);
+
         const userMember = timeline.members.find(m => m.user._id.toString() === userId);
 
         res.json({
             success: true,
             data: {
                 ...timeline.toObject(),
-                myRole: userMember.role
+                myRole: userMember.role,
+                memories: memories,
+                pagination: {
+                    currentPage: pageNum,
+                    totalPages: Math.ceil(total / limitNum),
+                    totalItem: total,
+                    itemsPerPage: limitNum,
+                    hasNextPage: pageNum < Math.ceil(total / limitNum),
+                    hasPrevPage: pageNum > 1
+                }
             }
         });
 

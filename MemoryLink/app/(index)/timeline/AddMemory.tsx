@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import {
   View,
   Text,
@@ -8,9 +8,10 @@ import {
   ScrollView,
   Pressable,
 } from 'react-native'
+import { useAudioPlayer, useAudioRecorder, AudioModule, RecordingPresets, setAudioModeAsync, useAudioRecorderState } from 'expo-audio';
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
-import { ArrowLeft, Image as ImageIcon, Video, Music, X, Upload, Camera } from 'lucide-react-native'
+import { ArrowLeft, Image as ImageIcon, Video, Music, X, Upload, Camera, Square, Circle } from 'lucide-react-native'
 import { Image as ExpoImage } from 'expo-image'
 import { TextInput } from 'react-native-gesture-handler'
 import { useAuthStore } from '@/store/authStore'
@@ -40,6 +41,13 @@ const AddMemory = () => {
   const [description, setDescription] = useState('')
   const [uploading, setUploading] = useState(false)
   const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [showRecordingUI, setShowRecordingUI] = useState(false);
+  
+  // Audio recorder setup
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(audioRecorder);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const recordingTimerRef = useRef<number | null>(null);
 
   // Request permissions for media access
   const requestMediaPermission = async (mediaType: 'camera' | 'library') => {
@@ -104,34 +112,91 @@ const AddMemory = () => {
         name: result.assets[0].fileName ?? null,
         size: result.assets[0].fileSize ?? null,
       })
+
+    }
+  }
+
+  // Start audio recording
+  const startAudioRecording = async () => {
+    try {
+      const status = await AudioModule.requestRecordingPermissionsAsync();
+      if (!status.granted) {
+        Alert.alert('Permission to access microphone was denied');
+        return;
+      }
+
+      await setAudioModeAsync({
+        playsInSilentMode: true,
+        allowsRecording: true,
+      });
+
+      await audioRecorder.prepareToRecordAsync();
+      audioRecorder.record();
+      setShowRecordingUI(true);
+      setRecordingDuration(0);
       
+      // Start timer
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingDuration(prev => prev + 1);
+      }, 1000);
+    } catch (error) {
+      console.log("Error starting recording", error);
+      Alert.alert("Error", "Could not start recording. Please try again!")
     }
   }
 
-  // Pick audio from library
-  const pickAudio = async () => {
-    const hasPermission = await requestMediaPermission('library')
-    if (!hasPermission) return
+  // Stop audio recording
+  const stopAudioRecording = async () => {
+    try {
+      await audioRecorder.stop();
+      
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
 
-    // For audio, we use the document picker approach
-    // Since expo-image-picker doesn't support audio, we'll use a workaround
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: false,
-      quality: 1,
-    })
-
-    if (!result.canceled && result.assets.length > 0) {
-      // Note: This is a workaround. For proper audio picking, 
-      // you might want to add expo-document-picker
-      setSelectedMedia({
-        type: 'audio',
-        uri: result.assets[0].uri,
-        name: result.assets[0].fileName ?? null,
-        size: result.assets[0].fileSize ?? null,
-      })
+      if (audioRecorder.uri) {
+        setSelectedMedia({
+          type: 'audio',
+          uri: audioRecorder.uri,
+          name: `recording-${Date.now()}.m4a`,
+          size: null,
+        })
+      }
+      
+      setShowRecordingUI(false);
+      setRecordingDuration(0);
+    } catch (error) {
+      console.log("Error stopping recording", error);
+      Alert.alert("Error", "Could not stop recording. Please try again!")
     }
   }
+
+  // Cancel audio recording
+  const cancelAudioRecording = async () => {
+    try {
+      if (recorderState.isRecording) {
+        await audioRecorder.stop();
+      }
+      
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
+      
+      setShowRecordingUI(false);
+      setRecordingDuration(0);
+    } catch (error) {
+      console.log("Error canceling recording", error);
+    }
+  }
+
+  // Format duration as MM:SS
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   // Take photo with camera
   const takePhoto = async () => {
@@ -190,18 +255,6 @@ const AddMemory = () => {
       const fileExtension = selectedMedia.uri.split('.').pop()
       const fileName = `${Date.now()}.${fileExtension}`
 
-      // // @ts-ignore - FormData append with file
-      // formData.append('memory', {
-      //   uri: selectedMedia.uri,
-      //   name: fileName,
-      //   type: selectedMedia.type === 'image' ? 'image/jpeg' :
-      //     selectedMedia.type === 'video' ? 'video/mp4' : 'audio/mpeg',
-      // })
-
-      // // Append metadata
-      // formData.append('title', title.trim())
-      // formData.append('description', description.trim())
-      // formData.append('type', selectedMedia.type!)
       const resourceType = selectedMedia.type === 'image' ? 'image' : 'video'
       const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`;
 
@@ -211,8 +264,6 @@ const AddMemory = () => {
         : selectedMedia.type === 'video'
           ? 'video/mp4'
           : 'video/mp4'; // Audio also uses video/mp4 for Cloudinary
-
-      // console.log("mediaUrl:", imageDataUrl)
 
       if (selectedMedia.type === 'image' && imageBase64) {
         const imageDataUrl = `data:${mimeType};base64,${imageBase64}`;
@@ -248,7 +299,7 @@ const AddMemory = () => {
       console.log("mediaUrl:", mediaUrl)
 
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_API_URL}/timelines/${timelineId}/memories`,
+        `${process.env.EXPO_PUBLIC_BACKEND_API_URL}/${timelineId}/memories`,
         {
           method: 'POST',
           headers: {
@@ -266,14 +317,19 @@ const AddMemory = () => {
         }
       )
 
-      const data = await response.json()
+      let data;
+      try {
+        data = await response.json();
+      } catch (error) {
+        data = { message: `Server error: ${response.status} ${response.statusText}` };
+      }
 
       if (!response.ok) {
         throw new Error(data.message || 'Failed to upload memory')
       }
 
       // Invalidate queries to refresh timeline data
-      queryClient.invalidateQueries({ queryKey: ['timelines', timelineId] })
+      queryClient.invalidateQueries({ queryKey: ['timeline', timelineId] })
 
       Alert.alert('Success', 'Memory added successfully!')
       router.back()
@@ -290,12 +346,76 @@ const AddMemory = () => {
 
   const isSubmitDisabled = !selectedMedia || !title.trim() || uploading
 
+  // Render audio recording UI
+  const renderRecordingUI = () => (
+    <View className="mt-6">
+      <View className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-6 border-2 border-red-200">
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-lg font-semibold text-gray-700">Recording Audio</Text>
+          <TouchableOpacity onPress={cancelAudioRecording} className="p-2">
+            <X size={24} color="#6B7280" />
+          </TouchableOpacity>
+        </View>
+
+        <View className="items-center mb-6">
+          <View className="w-20 h-20 rounded-full bg-red-500 items-center justify-center mb-4">
+            {recorderState.isRecording ? (
+              <Pressable onPress={stopAudioRecording}><Square size={32} color="#FFF" /></Pressable>
+            ) : (
+              <Pressable onPress={startAudioRecording}><Circle size={32} color="#FFF" /></Pressable>
+            )}
+          </View>
+          
+          <Text className="text-3xl font-bold text-gray-800 font-mono">
+            {formatDuration(recordingDuration)}
+          </Text>
+          <Text className="text-sm text-gray-500 mt-1">
+            {recorderState.isRecording ? 'Recording in progress...' : 'Ready to record'}
+          </Text>
+        </View>
+
+        <View className="flex-row gap-4">
+          <TouchableOpacity
+            onPress={recorderState.isRecording ? stopAudioRecording : startAudioRecording}
+            className={`flex-1 py-3 rounded-xl flex-row items-center justify-center gap-2 ${
+              recorderState.isRecording 
+                ? 'bg-red-500' 
+                : 'bg-green-500'
+            }`}
+            activeOpacity={0.8}
+          >
+            {recorderState.isRecording ? (
+              <>
+                <Square size={20} color="#FFF" />
+                <Text className="text-white font-bold">Stop</Text>
+              </>
+            ) : (
+              <>
+                <Circle size={20} color="#FFF" />
+                <Text className="text-white font-bold">Start</Text>
+              </>
+            )}
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            onPress={cancelAudioRecording}
+            className="flex-1 bg-gray-400 py-3 rounded-xl flex-row items-center justify-center gap-2"
+            activeOpacity={0.8}
+          >
+            <X size={20} color="#FFF" />
+            <Text className="text-white font-bold">Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  )
+
   // Render media type selection buttons (shown when no media is selected)
   const renderMediaSelection = () => (
     <View className="mt-6">
       <Text className="text-lg font-semibold text-gray-700 mb-4">Select Media Type</Text>
 
-      <View className="flex-row justify-between gap-4">
+      <View className="flex-row justify-between gap-1">
         <TouchableOpacity
           onPress={pickImage}
           className="flex-1 bg-gray-50 rounded-2xl p-6 items-center border-2 border-blue-100"
@@ -321,7 +441,7 @@ const AddMemory = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={pickAudio}
+          onPress={startAudioRecording}
           className="flex-1 bg-gray-50 rounded-2xl p-6 items-center border-2 border-blue-100"
           activeOpacity={0.7}
         >
@@ -329,13 +449,13 @@ const AddMemory = () => {
             <Music size={32} />
           </View>
           <Text className="font-semibold text-gray-700">Audio</Text>
-          <Text className="text-xs text-gray-500 mt-1">From files</Text>
+          <Text className="text-xs text-gray-500 mt-1">Record audio</Text>
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity
         onPress={takePhoto}
-        className="mt-4 bg-gray-50 rounded-2xl p-4 flex-row items-center justify-center gap-3 border-2 border-blue-100"
+        className="mt-1 bg-gray-50 rounded-2xl p-4 flex-row items-center justify-center gap-3 border-2 border-blue-100"
         activeOpacity={0.7}
       >
         <View className="w-10 h-10 rounded-full  items-center justify-center">
@@ -401,7 +521,7 @@ const AddMemory = () => {
         <Text className="text-2xl font-bold text-gray-800">Add Memory</Text>
       </View>
 
-      {selectedMedia ? renderMediaPreview() : renderMediaSelection()}
+      {showRecordingUI ? renderRecordingUI() : selectedMedia ? renderMediaPreview() : renderMediaSelection()}
 
       <View className="mt-6">
         <Text className="font-semibold text-gray-700 mb-2">Title *</Text>

@@ -7,6 +7,7 @@ const memoryModelScheme = new mongoose.Schema({
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     title: {
@@ -25,7 +26,7 @@ const memoryModelScheme = new mongoose.Schema({
     mediaType: {
         type: String,
         required: true,
-        enum: ['image/jpeg', 'video/mp4', 'audio/mp3']
+        enum: ['image/jpeg', 'video/mp4', 'audio/mp3', 'audio/mpeg']
     }
 }, { timestamps: true });
 
